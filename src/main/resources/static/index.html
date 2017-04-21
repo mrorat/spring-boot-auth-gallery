@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<body>
+
+<div ng-app="myApp" ng-controller="myCtrl">
+  {{statuscode}}
+  {{content}}
+  <p>Name : <input type="text" ng-model="name"></p>
+  <h1>Hello {{name}}</h1>
+  <img src="{{src}}">
+</div>
+
+<script>
+
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope, $http) {
+    $http.get('http://localhost:8080/imagesbase64/44')
+    .then(function(response) {
+        //$scope.content = response.data;
+        $scope.statuscode = response.status;
+        $scope.statustext = response.statustext;
+        $scope.src = 'data:image/jpeg;base64,' + response.data;
+    });
+});
+</script>
+
+
+</body>
+</html>
