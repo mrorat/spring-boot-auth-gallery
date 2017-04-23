@@ -1,7 +1,6 @@
 package com.quasar.controllers;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
