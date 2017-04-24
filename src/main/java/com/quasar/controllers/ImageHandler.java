@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,7 +38,7 @@ public class ImageHandler
 	}
 	
 	@RequestMapping(path="/imagesbase64/{iid}", method=RequestMethod.GET)
-	public void getImageAsBase64(HttpServletResponse response, @PathVariable long iid) throws IOException
+	public void getImageAsBase64(HttpServletResponse response, @PathVariable String iid) throws IOException
 	{
 		String base64FileContent = fileHandler.getFileContentAsBase64(iid);
 		
@@ -50,4 +51,18 @@ public class ImageHandler
 		response.getOutputStream().write(base64FileContent.getBytes());
 		response.flushBuffer();
 	}
+	
+	@RequestMapping(path="/selectImageAsAlbumBanner/{albumId}/{imageId}", method=RequestMethod.GET)
+	public void selectImageAsAlbumBanner(@PathVariable String imageId, @PathVariable String albumId)
+	{
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+		System.out.printf("User %s selected image %s as a banner for album %s%n", userName, imageId, albumId);
+	}
+	
+	// markToDelete(reasonEnum)
+	// deleteImage()
+	// deleteAlbum()
+	// addToFavoriteAlbum()
+	// hide()
+	// flag(reasonEnum)
 }

@@ -8,6 +8,11 @@ import java.util.Set;
 @Entity
 public class User {
 
+	public User()
+	{
+		roles.add(new Role("ROLE_GUEST"));
+	}
+	
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

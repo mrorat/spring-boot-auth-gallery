@@ -1,29 +1,49 @@
 <!DOCTYPE html>
 <html lang="en-US">
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+	<script>
+	
+	var app = angular.module('myApp', []);
+	app.controller('myCtrl', function($scope, $http)
+	{
+	    $http.get('http://localhost:8080/imagesbase64/44').then(function(response)
+	    {
+	        //$scope.content = response.data;
+	        $scope.statuscode = response.status;
+	        $scope.statustext = response.statustext;
+	        $scope.src = 'data:image/jpeg;base64,' + response.data;
+	    });
+	    $scope.double = function(value) { return value * 2; };
+	    $scope.gi = function(value, imgId) 
+	    {
+	    	$http.get('http://localhost:8080/imagesbase64/' + value)
+	    		.then(function(response)
+	    		{
+	    			document.getElementById(imgId).src = 'data:image/jpeg;base64,' + response.data;
+	       		});
+	    };
+	});
+	</script>
+</head>
 <body>
 
 <div ng-app="myApp" ng-controller="myCtrl">
-  {{statuscode}}
+
+  <img ng-src="{{src}}">
+  <br>...------------------------------------------------...<br>
+  
+  <img id="i1" ng-init="gi(666, 'i1')">
+  <img id="i2" ng-init="gi(667, 'i2')">
+    {{statuscode}}
   {{content}}
   <p>Name : <input type="text" ng-model="name"></p>
   <h1>Hello {{name}}</h1>
-  <img src="{{src}}">
+  Scope.double(5) = {{double(5)}}
+  Scope.double(6) = {{double(6)}}
 </div>
 
-<script>
 
-var app = angular.module('myApp', []);
-app.controller('myCtrl', function($scope, $http) {
-    $http.get('http://localhost:8080/imagesbase64/44')
-    .then(function(response) {
-        //$scope.content = response.data;
-        $scope.statuscode = response.status;
-        $scope.statustext = response.statustext;
-        $scope.src = 'data:image/jpeg;base64,' + response.data;
-    });
-});
-</script>
 
 
 </body>

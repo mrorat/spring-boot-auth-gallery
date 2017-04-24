@@ -19,9 +19,24 @@ public class FileHandler
 		return new InputStreamWithSize(new FileInputStream(f), Files.size(f.toPath()));
 	}
 	
-	public String getFileContentAsBase64(long iid) throws IOException
+	public String getFileContentAsBase64(String iid) throws IOException
 	{
-		File f = new File("img/IMG_5612_thumbnail.jpg");
+		System.out.println("Request to get image id: " + iid);
+		String filePath = "";
+		switch (iid)
+		{
+			case "666":
+				filePath = "img/IMG_5612_thumbnail.jpg";
+				break;
+			case "667":
+				filePath = "img/IMG_5612_thumbnail2.jpg";
+				break;
+	
+			default:
+				filePath = "img/Desert.jpg";
+				break;
+		}
+		File f = new File(filePath);
 		InputStream finput = new FileInputStream(f);
 		byte[] imageBytes = new byte[(int)Files.size(f.toPath())];
 		finput.read(imageBytes, 0, imageBytes.length);

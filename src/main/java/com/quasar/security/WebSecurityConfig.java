@@ -38,6 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter
                 .antMatchers("/admin/**").access("hasRole('ADMIN')")
         		.antMatchers("/images").access("hasRole('USER')")
         		.antMatchers("/user-profile").access("hasRole('USER')")
+        		.antMatchers("/gallery").access("hasRole('GUEST')")
         		.and().formLogin()
         		.and().exceptionHandling().accessDeniedPage("/access-denied");
 
