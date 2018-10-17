@@ -1,72 +1,137 @@
 package com.quasar.security;
 
-import javax.persistence.*;
-
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Predicate;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-public class User {
+@Table(
+    name = "user"
+)
+public class User implements UserDetails {
 
-	public User()
-	{
-		roles.add(new Role("ROLE_GUEST"));
-	}
-	
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
+	private static final long serialVersionUID = 8838272408963791948L;
+	@Id
+    @Column(
+        length = 36,
+        unique = true,
+        nullable = false
+    )
+    private String userid;
     private String username;
-
     private String password;
-
     private boolean enabled;
+    @ManyToMany(
+        fetch = FetchType.EAGER,
+        cascade = {CascadeType.ALL}
+    )
+    @JoinTable(
+        name = "users_roles",
+        joinColumns = {@JoinColumn(
+    name = "userid"
+)},
+        inverseJoinColumns = {@JoinColumn(
+    name = "roleid"
+)}
+    )
+    private Set<Role> roles;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    @JoinTable(joinColumns = @JoinColumn(name = "user_id"),inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    public User() {
+        this.roles = new HashSet<>();
+        this.userid = UUID.randomUUID().toString();
+    }
 
-	public String getUsername()
-	{
-		return username;
-	}
+    public User(Collection<Role> roles) {
+        this();
+        this.roles.addAll(roles);
+    }
 
-	public void setUsername(String username)
-	{
-		this.username = username;
-	}
+    public String getUsername() {
+        return this.username;
+    }
 
-	public String getPassword()
-	{
-		return password;
-	}
+    public boolean isAccountNonExpired() {
+        return this.isEnabled();
+    }
 
-	public void setPassword(String password)
-	{
-		this.password = password;
-	}
+    public boolean isAccountNonLocked() {
+        return this.isEnabled();
+    }
 
-	public boolean isEnabled()
-	{
-		return enabled;
-	}
+    public boolean isCredentialsNonExpired() {
+        return this.isEnabled();
+    }
 
-	public void setEnabled(boolean enabled)
-	{
-		this.enabled = enabled;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public Set<Role> getRoles()
-	{
-		return roles;
-	}
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        Iterator<?> var2 = this.getRoles().iterator();
 
-	public void setRoles(String... roles)
-	{
-		for (String role : roles)
-		{
-			this.roles.add(new Role(role));
-		}
-	}
+        while(var2.hasNext()) {
+            Role role = (Role)var2.next();
+            GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(role.getName());
+            authorities.add(grantedAuthority);
+        }
+
+        return authorities;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public void setPassword(String password) {
+        this.password = (new MyPasswordEncoder()).encode(password);
+    }
+
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    Set<Role> getRoles() {
+        return this.roles;
+    }
+
+    void setRoles(Roles... roles) {
+        Roles[] var2 = roles;
+        int var3 = roles.length;
+
+        for(int var4 = 0; var4 < var3; ++var4) {
+            Roles role = var2[var4];
+            this.roles.add(new Role(role));
+        }
+
+    }
+
+    public String getID() {
+        return this.userid;
+    }
+
+    public boolean hasRole(Roles role) {
+        return this.roles.stream().filter((r) -> {
+            return r.getName().equals(role.name());
+        }).findFirst().isPresent();
+    }
 }

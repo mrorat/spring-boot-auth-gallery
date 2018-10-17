@@ -15,7 +15,7 @@
 					authentication-failure-url="/login?login_error=1">
 					<input type="hidden"  name="${_csrf.parameterName}"   value="${_csrf.token}"/>
 		    <label for="username">Username</label><input type="text" id="username" name="j_username"><br/>
-		    <label for="password">Password</label><input type="text" id="password" name="j_password"><br/>
+		    <label for="password">Password</label><input type="password" id="password" name="j_password"><br/>
 		    <input type="submit" value="Login!">
 		</form-login>
 		<form action="/j_spring_security_check" method="post">

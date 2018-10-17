@@ -9,60 +9,48 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer.AuthorizedUrl;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
-import com.quasar.CustomAuthenticationProvider;
-
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-@ComponentScan("com.quasar.*")
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter
-{
-	@Autowired
-	public void configureGlobalSecurity(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication().withUser("bill").password("abc123").roles("USER");
-		auth.inMemoryAuthentication().withUser("admin").password("root123").roles("ADMIN", "USER");
-		auth.inMemoryAuthentication().withUser("dba").password("root123").roles("ADMIN","DBA");//dba have two roles.
-	}
-	
-	@Override
-	protected void configure(HttpSecurity http) throws Exception
-	{
+@EnableGlobalMethodSecurity(
+    prePostEnabled = true,
+    securedEnabled = true
+)
+@ComponentScan({"com.quasar.*"})
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    protected CustomDaoUserDetailsAuthenticationHandler authProvider;
+    @Autowired
+    private UserDetailsService customUserDetailsService;
 
-//@formatter:off    	
-        http
-            .authorizeRequests()
-                .antMatchers("/", "/home").permitAll()
-                .antMatchers("/admin/**").access("hasRole('ADMIN')")
-        		.antMatchers("/images").access("hasRole('USER')")
-        		.antMatchers("/user-profile").access("hasRole('USER')")
-        		.antMatchers("/gallery").access("hasRole('GUEST')")
-        		.and().formLogin()
-        		.and().exceptionHandling().accessDeniedPage("/access-denied");
+    public WebSecurityConfig() {
+    }
 
-//@formatter:on
-	}
+    protected void configure(HttpSecurity http) throws Exception {
+        ((HttpSecurity)((HttpSecurity)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)
+        		((HttpSecurity)http.headers().cacheControl().disable().and()).authorizeRequests().anyRequest()).fullyAuthenticated()
+        		.antMatchers(new String[]{"/", "/home"})).permitAll()
+        		.antMatchers(new String[]{"/admin/**"})).access("hasRole('ADMIN')")
+        		.antMatchers(new String[]{"/images"})).access("hasRole('USER')")
+        		.antMatchers(new String[]{"/user-profile"})).access("hasRole('USER')")
+        		.antMatchers(new String[]{"/gallery"})).access("hasRole('GUEST')")
+        		.and()).formLogin().and()).exceptionHandling().accessDeniedPage("/access-denied");
+    }
 
-	@Bean
-	public AuthenticationSuccessHandler successHandler()
-	{
-		SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
-		handler.setUseReferer(true);
-		return handler;
-	}
+    @Bean
+    public AuthenticationSuccessHandler successHandler() {
+        SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
+        handler.setUseReferer(true);
+        return handler;
+    }
 
-	@Autowired
-	protected CustomAuthenticationProvider authProvider;
-	
-	@Autowired
-	private CustomUserDetailsService customUserDetailsService;
-
-	@Autowired
-	@Override
-	public void configure(AuthenticationManagerBuilder auth) throws Exception
-	{
-		auth.userDetailsService(this.customUserDetailsService);
-	}
+    @Autowired
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(this.customUserDetailsService);
+        auth.authenticationProvider(this.authProvider);
+    }
 }
