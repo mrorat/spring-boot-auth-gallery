@@ -1,7 +1,10 @@
 package com.quasar.model;
 
 import java.io.File;
-import java.sql.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,10 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 @Entity
@@ -29,6 +36,9 @@ public class Album implements Comparable<Album> {
     private String albumid;
     private String name;
     private String path;
+
+	@Basic
+	@Temporal(TemporalType.TIMESTAMP)
     private Date created_date;
     @Transient
     private Map<String, Image> images = new HashMap<>();
@@ -77,8 +87,9 @@ public class Album implements Comparable<Album> {
     private void updateCreatedDate() {
         if (this.created_date == null) {
             try {
-                this.created_date = Date.valueOf(this.name.substring(0, 10));
-            } catch (StringIndexOutOfBoundsException | IllegalArgumentException var3) {
+            	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                this.created_date = formatter.parse(this.name.substring(0, 10));
+            } catch (StringIndexOutOfBoundsException | IllegalArgumentException | ParseException var3) {
                 Optional<String> firstKey = this.images.keySet().stream().findFirst();
                 if (firstKey.isPresent()) {
                     this.created_date = ((Image)this.images.get(firstKey.get())).getDateTaken();
@@ -106,8 +117,8 @@ public class Album implements Comparable<Album> {
         return this.path;
     }
 
-    public synchronized LocalDate getCreated_date() {
-        return this.created_date.toLocalDate();
+    public synchronized Date getCreated_date() {
+        return this.created_date;
     }
 
     public int compareTo(Album o) {

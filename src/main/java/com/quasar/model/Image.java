@@ -4,7 +4,7 @@ import com.quasar.files.FileHandler;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.sql.Date;
+import java.util.Date;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -12,7 +12,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(
@@ -33,6 +34,7 @@ public class Image implements Comparable<Image> {
     private String name;
     private String path;
     @Column(name = "created_date")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
     @Column(name = "next_image_id")
     private String nextId;
