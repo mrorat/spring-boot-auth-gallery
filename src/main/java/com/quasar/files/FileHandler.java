@@ -80,7 +80,7 @@ public class FileHandler {
 
     public String getFileContentAsBase64Thumbnail(String albumId, String imageId) throws IOException {
     	long start = System.currentTimeMillis();
-        System.out.println(Instant.now() + " Request to get image id: " + imageId);
+        System.out.println(Instant.now() + " Request to get thumbnail for image id: " + imageId);
         String filePath = Repository.getImageById(albumId, imageId).getThumbnailPath();
         File f = new File(filePath);
         InputStream finput = new FileInputStream(f);

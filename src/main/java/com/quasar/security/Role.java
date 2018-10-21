@@ -25,7 +25,7 @@ public class Role {
     )
     private String roleid;
     @Transient
-    private Roles role;
+    private ROLES role;
     private String name;
     @ManyToMany(
         fetch = FetchType.LAZY
@@ -44,7 +44,7 @@ public class Role {
     public Role() {
     }
 
-    public Role(Roles role) {
+    public Role(ROLES role) {
         this.roleid = UUID.randomUUID().toString();
         this.role = role;
         this.name = role.name();
@@ -52,7 +52,7 @@ public class Role {
 
     public String getName() {
         if (this.role == null) {
-            this.role = (Roles)Enum.valueOf(Roles.class, this.name);
+            this.role = (ROLES)Enum.valueOf(ROLES.class, this.name);
         }
 
         return this.role.name();

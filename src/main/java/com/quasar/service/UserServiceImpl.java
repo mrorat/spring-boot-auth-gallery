@@ -1,7 +1,7 @@
 package com.quasar.service;
 
 import com.quasar.dao.UserRepository;
-import com.quasar.security.Roles;
+import com.quasar.security.ROLES;
 import com.quasar.security.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +25,6 @@ public class UserServiceImpl implements UserService {
     }
 
     public Iterable<User> getAllAdminUsers() {
-        return this.userDAO.findAllByRoleName(Roles.ROLE_ADMIN.name());
+        return this.userDAO.findAllByRoleName(ROLES.ROLE_ADMIN.name());
     }
 }

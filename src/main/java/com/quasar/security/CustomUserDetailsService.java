@@ -60,12 +60,12 @@ public class CustomUserDetailsService implements UserDetailsService {
         switch(var4) {
         case 0:
             u.setUsername(username);
-            u.setRoles(new Roles[]{Roles.ROLE_ADMIN, Roles.ROLE_USER});
+            u.setRoles(new ROLES[]{ROLES.ROLE_ADMIN, ROLES.ROLE_USER});
             return u;
         case 1:
         case 2:
             u.setUsername(username);
-            u.setRoles(new Roles[]{Roles.ROLE_USER});
+            u.setRoles(new ROLES[]{ROLES.ROLE_USER});
             return u;
         default:
             return null;

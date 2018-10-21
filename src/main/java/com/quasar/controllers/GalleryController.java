@@ -170,7 +170,9 @@ public class GalleryController {
         Set<Image> imagesForAlbum = Repository.getImagesForAlbum(albumId);
         System.out.printf("get images for album: [%s] %s, images %d%n", albumId, albumName, imagesForAlbum.size());
         map.put("images", imagesForAlbum);
-        return new ModelAndView("album", map);
+        map.put("albumName", albumName);
+//        return new ModelAndView("album", map);
+        return new ModelAndView("gallery_cat_grid", map);
     }
 
     @GetMapping("/picture/{albumId}/{imageId}")

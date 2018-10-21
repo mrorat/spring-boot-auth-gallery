@@ -114,12 +114,12 @@ public class User implements UserDetails {
         return this.roles;
     }
 
-    void setRoles(Roles... roles) {
-        Roles[] var2 = roles;
+    void setRoles(ROLES... roles) {
+        ROLES[] var2 = roles;
         int var3 = roles.length;
 
         for(int var4 = 0; var4 < var3; ++var4) {
-            Roles role = var2[var4];
+            ROLES role = var2[var4];
             this.roles.add(new Role(role));
         }
 
@@ -129,7 +129,7 @@ public class User implements UserDetails {
         return this.userid;
     }
 
-    public boolean hasRole(Roles role) {
+    public boolean hasRole(ROLES role) {
         return this.roles.stream().filter((r) -> {
             return r.getName().equals(role.name());
         }).findFirst().isPresent();
