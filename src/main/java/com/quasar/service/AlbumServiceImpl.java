@@ -28,8 +28,8 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     public SortedSet<Album> getAlbums() {
-        SortedSet<Album> albums = new TreeSet();
-        Iterator var2 = this.albumDAO.findAll().iterator();
+        SortedSet<Album> albums = new TreeSet<>();
+        Iterator<Album> var2 = this.albumDAO.findAll().iterator();
 
         while(var2.hasNext()) {
             Album album = (Album)var2.next();

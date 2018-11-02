@@ -22,11 +22,6 @@ public class HelloWorldController {
 		return "welcome";
 	}
 
-	@RequestMapping(value = "/admin", method = RequestMethod.GET)
-	public String adminPage(ModelMap model) {
-		model.addAttribute("user", getPrincipal());
-		return "admin";
-	}
 
 //	@RequestMapping(value = "/userprofile", method = RequestMethod.GET)
 //	public String dbaPage(ModelMap model) {
@@ -45,19 +40,8 @@ public class HelloWorldController {
 
 	@RequestMapping(value = "/Access_Denied", method = RequestMethod.GET)
 	public String accessDeniedPage(ModelMap model) {
-		model.addAttribute("user", getPrincipal());
+//		model.addAttribute("user", getPrincipal());
 		return "accessDenied";
 	}
-	
-	private String getPrincipal(){
-		String userName = null;
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-		if (principal instanceof UserDetails) {
-			userName = ((UserDetails)principal).getUsername();
-		} else {
-			userName = principal.toString();
-		}
-		return userName;
-	}
 }

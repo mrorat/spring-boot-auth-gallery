@@ -1,18 +1,15 @@
 package com.quasar.controllers;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class LoginController
@@ -35,16 +32,23 @@ public class LoginController
 		return "access_denied";
 	}
 	
-	@RequestMapping(value = "/show-roles", method = RequestMethod.GET)
-	public ModelAndView getShowRolesPage()
-	{
-		Map<String, Object> map = new HashMap<>();
-		Set<String> roles = new HashSet<String>();
-		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities())
-		{
-			roles.add(ga.getAuthority());
+
+	@RequestMapping(value = "/user", method = RequestMethod.GET)
+	public String adminPage(ModelMap model) {
+		model.addAttribute("user", getPrincipal());
+		return "admin";
+	}
+	
+	
+	private String getPrincipal(){
+		String userName = null;
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		if (principal instanceof UserDetails) {
+			userName = ((UserDetails)principal).getUsername();
+		} else {
+			userName = principal.toString();
 		}
-		map.put("roles", roles);
-		return new ModelAndView("show_roles", map);
+		return userName;
 	}
 }

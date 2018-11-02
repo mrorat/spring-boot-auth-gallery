@@ -154,7 +154,7 @@ public class FileHandler {
         this.iwp = writer.getDefaultWriteParam();
         this.iwp.setCompressionMode(2);
         this.iwp.setCompressionQuality(0.25F);
-        IIOImage image = new IIOImage(originalImage, (List)null, (IIOMetadata)null);
+        IIOImage image = new IIOImage(originalImage, null, (IIOMetadata)null);
         writer.write(image.getMetadata(), image, this.iwp);
         System.out.println(Instant.now() + " Creating thumbnail file for: " + originalFile.getPath() + ", with size: " + image.getRenderedImage().getData().getDataBuffer().getSize());
     }

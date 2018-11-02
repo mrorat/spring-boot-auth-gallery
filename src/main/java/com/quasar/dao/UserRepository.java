@@ -1,6 +1,9 @@
 package com.quasar.dao;
 
 import com.quasar.security.User;
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -19,4 +22,6 @@ public interface UserRepository extends CrudRepository<User, String> {
     Iterable<User> findAllByRoleName(String var1);
 
     User findByUsername(String var1);
+    
+    List<User> findAll();
 }

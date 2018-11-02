@@ -60,17 +60,17 @@ public class Album implements Comparable<Album> {
         this.updateCreatedDate();
     }
 
-    private boolean isWhitespaceOrSimilar(char charAt) {
-        switch(charAt) {
-        case '\t':
-        case ' ':
-        case '-':
-        case '_':
-            return true;
-        default:
-            return false;
-        }
-    }
+//    private boolean isWhitespaceOrSimilar(char charAt) {
+//        switch(charAt) {
+//        case '\t':
+//        case ' ':
+//        case '-':
+//        case '_':
+//            return true;
+//        default:
+//            return false;
+//        }
+//    }
 
     public void setImages(List<Image> images) {
         System.out.printf("Setting images for Album [name: %s], [id: %s], [image qty: %d]%n", this.getName(), this.getAlbumid(), images.size());
