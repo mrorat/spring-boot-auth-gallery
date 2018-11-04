@@ -1,14 +1,16 @@
 package com.quasar.service;
 
-import com.quasar.dao.AlbumRepository;
-import com.quasar.model.Album;
 import java.io.File;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.quasar.dao.AlbumRepository;
+import com.quasar.model.Album;
 
 @Service
 @Transactional
@@ -49,4 +51,12 @@ public class AlbumServiceImpl implements AlbumService {
         }
 
     }
+
+	@Override
+	public SortedSet<Album> getAlbumsForUser(String userid) {
+		// TODO Auto-generated method stub
+		return new TreeSet<>(albumDAO.getAlbumsForUser(userid));
+	}
+
+
 }

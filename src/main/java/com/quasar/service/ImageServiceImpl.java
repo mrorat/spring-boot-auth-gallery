@@ -40,4 +40,12 @@ public class ImageServiceImpl implements ImageService {
 
 		return images;
 	}
+	
+
+	@Override
+	public SortedSet<Image> getImagesForUser(String userid) {
+		// TODO Auto-generated method stub
+		return new TreeSet<Image>(imageDAO.getImagesForUser(userid));
+	}
+
 }

@@ -6,7 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RoleRepository extends CrudRepository<Role, String> {
-    Role save(Role var1);
+    @SuppressWarnings("unchecked")
+	Role save(Role var1);
 
     Role findByRoleid(String var1);
 

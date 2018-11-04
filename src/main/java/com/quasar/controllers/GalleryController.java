@@ -5,6 +5,7 @@ import com.quasar.files.FileHandler;
 import com.quasar.model.Album;
 import com.quasar.model.Image;
 import com.quasar.repository.Repository;
+import com.quasar.security.User;
 import com.quasar.service.AlbumService;
 import com.quasar.service.ImageService;
 
@@ -21,6 +22,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,11 +59,9 @@ public class GalleryController {
             return filex.isDirectory();
         });
         if (albumFileList != null) {
-            File[] var4 = albumFileList;
-            int var5 = albumFileList.length;
 
-            for(int var6 = 0; var6 < var5; ++var6) {
-                File directory = var4[var6];
+            for(int j = 0; j < albumFileList.length; ++j) {
+                File directory = albumFileList[j];
                 List<Image> images = new ArrayList<>();
                 File[] imageFileList = directory.listFiles((filex) -> {
                     return !filex.isDirectory() && filex.toString().toLowerCase().endsWith("jpg");
@@ -71,6 +71,7 @@ public class GalleryController {
                 if (imageFileList != null) {
                     System.out.printf("Processing directory %s, image qty: %d%n", directory.getName(), imageFileList.length);
 
+                    albumService.save(album);
                     for(int i = 0; i < imageFileList.length; ++i) {
                         File file = imageFileList[i];
                         Image image = new Image(file, album.getAlbumid().toString(), this.fileHandler);
@@ -129,13 +130,13 @@ public class GalleryController {
 
     @GetMapping("/gallery")
     public ModelAndView getAllAlbums(@RequestParam Optional<String> error) {
-        if (albums.isEmpty()) {
-            albums = this.albumService.getAlbums();
-        }
+//        if (albums.isEmpty()) {
+//            albums = this.albumService.getAlbumsForUser(SecurityContextHolder.getContext().getAuthentication().getName());
+//        }
 
         System.out.printf("Loaded %d albums from database", albums.size());
         Map<String, Object> map = new HashMap<>();
-        map.put("albums", albums);
+        map.put("albums", this.albumService.getAlbumsForUser(((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getID()));
         return new ModelAndView("gallery", map);
     }
 
@@ -167,7 +168,7 @@ public class GalleryController {
     )
     public ModelAndView getImagesForAlbum(@PathVariable String albumName, @PathVariable String albumId, @RequestParam Optional<String> error) {
         Map<String, Object> map = new HashMap<>();
-        Set<Image> imagesForAlbum = Repository.getImagesForAlbum(albumId);
+        Set<Image> imagesForAlbum = imageService.getImagesForUser(albumId);
         System.out.printf("get images for album: [%s] %s, images %d%n", albumId, albumName, imagesForAlbum.size());
         map.put("images", imagesForAlbum);
         map.put("albumName", albumName);

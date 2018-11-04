@@ -38,7 +38,7 @@
   <body>
     <header>
       <img class="logo" src="https://emojipedia-us.s3.amazonaws.com/thumbs/120/facebook/111/crystal-ball_1f52e.png" alt="heart" />
-      <h1 class="heading">Album: ${albumName}</h1>
+      <h1 class="heading"><a href="/gallery">Home</a>&nbsp;- ${albumName}</h1>
     </header>
     <main>
       <section class="leading">

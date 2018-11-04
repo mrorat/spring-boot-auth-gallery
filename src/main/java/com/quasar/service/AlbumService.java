@@ -13,4 +13,6 @@ public interface AlbumService {
     SortedSet<Album> getAlbums();
 
     void renameAlbum(String var1, String var2);
+    
+    SortedSet<Album> getAlbumsForUser(String userId);
 }

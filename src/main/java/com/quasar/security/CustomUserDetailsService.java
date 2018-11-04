@@ -37,38 +37,38 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    private User getUser(String username) {
-        User u = new User();
-        byte var4 = -1;
-        switch(username.hashCode()) {
-        case -1074367764:
-            if (username.equals("michal")) {
-                var4 = 0;
-            }
-            break;
-        case 100506:
-            if (username.equals("ela")) {
-                var4 = 1;
-            }
-            break;
-        case 3343912:
-            if (username.equals("mama")) {
-                var4 = 2;
-            }
-        }
-
-        switch(var4) {
-        case 0:
-            u.setUsername(username);
-            u.setRoles(new ROLES[]{ROLES.ROLE_ADMIN, ROLES.ROLE_USER});
-            return u;
-        case 1:
-        case 2:
-            u.setUsername(username);
-            u.setRoles(new ROLES[]{ROLES.ROLE_USER});
-            return u;
-        default:
-            return null;
-        }
-    }
+//    private User getUser(String username) {
+//        User u = new User();
+//        byte var4 = -1;
+//        switch(username.hashCode()) {
+//        case -1074367764:
+//            if (username.equals("michal")) {
+//                var4 = 0;
+//            }
+//            break;
+//        case 100506:
+//            if (username.equals("ela")) {
+//                var4 = 1;
+//            }
+//            break;
+//        case 3343912:
+//            if (username.equals("mama")) {
+//                var4 = 2;
+//            }
+//        }
+//
+//        switch(var4) {
+//        case 0:
+//            u.setUsername(username);
+//            u.setRoles(new ROLES[]{ROLES.ROLE_ADMIN, ROLES.ROLE_USER});
+//            return u;
+//        case 1:
+//        case 2:
+//            u.setUsername(username);
+//            u.setRoles(new ROLES[]{ROLES.ROLE_USER});
+//            return u;
+//        default:
+//            return null;
+//        }
+//    }
 }

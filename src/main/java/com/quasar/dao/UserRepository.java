@@ -11,7 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends CrudRepository<User, String> {
 	
-    User save(User var1);
+    @SuppressWarnings("unchecked")
+	User save(User var1);
 
     User findByUserid(String var1);
 

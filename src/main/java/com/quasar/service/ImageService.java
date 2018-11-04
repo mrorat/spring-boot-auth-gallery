@@ -13,4 +13,6 @@ public interface ImageService {
     Image getImageById(String id);
 
     SortedSet<Image> getImages();
+    
+    SortedSet<Image> getImagesForUser(String userid);
 }
