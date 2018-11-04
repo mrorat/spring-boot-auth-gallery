@@ -23,14 +23,19 @@
 
         var xmlhttp = new XMLHttpRequest();
         var url = "/getImageDescription/${albumId}/${imageId}";
-
+		var enablePrev = false;
+		var enableNext = false;
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var imageDescription = JSON.parse(this.responseText);
-                if (imageDescription.nextId != null)
+                if (imageDescription.nextId != null && imageDescription.nextId != imageDescription.imageId) {
                     document.getElementById("next").href = "/picture/${albumId}/" + imageDescription.nextId;
-                if (imageDescription.previousId != null)
+                    enableNext = true;
+                }
+                if (imageDescription.previousId != null && imageDescription.previousId != imageDescription.imageId)  {
                     document.getElementById("prev").href = "/picture/${albumId}/" + imageDescription.previousId;
+                    enablePrev = true;
+                }
             }
         };
         xmlhttp.open("GET", url, true);
@@ -39,9 +44,9 @@
 		$(function() {$(document).keyup(function(e) {
             switch(e.keyCode)
             {
-                case 37 : window.location = $('div.div_prev a').attr('href'); break;
+                case 37 : if (enablePrev) { window.location = $('div.div_prev a').attr('href'); } break;
                 case 38 : window.location = $('div.div_back a').attr('href'); break;
-                case 39 : window.location = $('div.div_next a').attr('href'); break;
+                case 39 : if (enableNext) { window.location = $('div.div_next a').attr('href'); } break;
             }});
         });
 	</script>

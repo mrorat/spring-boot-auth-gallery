@@ -1,12 +1,10 @@
 package com.quasar.model;
 
-import com.quasar.files.FileHandler;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Date;
 import java.util.Calendar;
-import java.util.UUID;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +12,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import org.apache.commons.codec.digest.DigestUtils;
+
+import com.quasar.TestCRC;
+import com.quasar.files.FileHandler;
 
 @Entity
 @Table(
@@ -47,7 +50,7 @@ public class Image implements Comparable<Image> {
         this.name = file.getName();
         this.path = file.getPath();
         this.albumId = albumId;
-
+        
         try {  // TODO extract date taken from EXIF
             BasicFileAttributes attr = fileHandler.getFileAttributes(file);
             this.createdDate = new Date(attr.creationTime().toMillis());
@@ -56,7 +59,12 @@ public class Image implements Comparable<Image> {
             var6.printStackTrace();
         }
 
-        this.imageId = UUID.randomUUID().toString();
+        try {
+			this.imageId = DigestUtils.md5Hex(String.valueOf(TestCRC.checksumMappedFile(path)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     public String getId() {

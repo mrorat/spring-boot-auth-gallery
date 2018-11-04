@@ -1,15 +1,10 @@
 package com.quasar.controllers;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.quasar.files.FileHandler;
-import com.quasar.files.InputStreamWithSize;
-import com.quasar.model.Image;
-import com.quasar.repository.Repository;
-import com.quasar.service.AlbumService;
 import java.io.IOException;
 import java.time.Instant;
+
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,14 +13,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.quasar.files.FileHandler;
+import com.quasar.files.InputStreamWithSize;
+import com.quasar.model.Image;
+import com.quasar.service.AlbumService;
+import com.quasar.service.ImageService;
+
 @RestController
 public class ImageHandler {
-    @Autowired
-    private FileHandler fileHandler;
-    @Autowired
-    private AlbumService albumService;
 
-    public ImageHandler() {
+	private FileHandler fileHandler;
+    private AlbumService albumService;
+    private ImageService imageService;
+
+    @Autowired
+    public ImageHandler(FileHandler fileHandler, AlbumService albumService, ImageService imageService) {
+    	this.fileHandler = fileHandler;
+    	this.albumService = albumService;
+    	this.imageService = imageService;
     }
 
     @RequestMapping(
@@ -90,7 +97,7 @@ public class ImageHandler {
     public void getImageDescription(HttpServletResponse response, @PathVariable String albumId, @PathVariable String imageId) throws IOException {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        Image image = Repository.getImageById(albumId, imageId);
+        Image image = imageService.getImageById(imageId);
         response.setContentType("application/json");
         response.getOutputStream().write(gson.toJson(image).getBytes());
         response.flushBuffer();

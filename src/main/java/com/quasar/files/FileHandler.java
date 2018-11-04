@@ -1,10 +1,5 @@
 package com.quasar.files;
 
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Metadata;
-import com.quasar.model.Album;
-import com.quasar.repository.Repository;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,35 +10,48 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.FileImageOutputStream;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.quasar.model.Album;
+import com.quasar.service.ImageService;
 
 @Service
 public class FileHandler {
+	
+	private ImageService imageService;
+	
     private ExecutorService executor = null;
     private ImageWriteParam iwp;
 
-    public FileHandler() {
+    @Autowired
+    public FileHandler(ImageService imageService) {
+    	this.imageService = imageService;
         this.executor = Executors.newFixedThreadPool(5);
     }
 
     public InputStreamWithSize getStreamWithSize(String albumId, String imageId) throws IOException {
-        File f = new File(Repository.getImageById(albumId, imageId).getPath());
+        File f = new File(imageService.getImageById(imageId).getPath());
         return new InputStreamWithSize(new FileInputStream(f), Files.size(f.toPath()));
     }
 
     public String getFileContentAsBase64(String albumId, String imageId) throws IOException {
         System.out.println(Instant.now() + " Request to get image id: " + imageId);
-        String filePath = Repository.getImageById(albumId, imageId).getPath();
+        String filePath = imageService.getImageById(imageId).getPath();
         File f = new File(filePath);
         InputStream finput = new FileInputStream(f);
         Throwable var6 = null;
@@ -81,7 +89,7 @@ public class FileHandler {
     public String getFileContentAsBase64Thumbnail(String albumId, String imageId) throws IOException {
     	long start = System.currentTimeMillis();
         System.out.println(Instant.now() + " Request to get thumbnail for image id: " + imageId);
-        String filePath = Repository.getImageById(albumId, imageId).getThumbnailPath();
+        String filePath = imageService.getImageById(imageId).getThumbnailPath();
         File f = new File(filePath);
         InputStream finput = new FileInputStream(f);
         Throwable var6 = null;

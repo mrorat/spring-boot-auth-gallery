@@ -180,7 +180,7 @@ public class GalleryController {
     public ModelAndView showImage(@PathVariable String albumId, @PathVariable String imageId, @RequestParam Optional<String> error) {
         Map<String, Object> map = new HashMap<>();
         System.out.println("get images for albumId: " + albumId + ", image: " + imageId);
-        map.put("albumName", Repository.getAlbum(albumId).getName());
+        map.put("albumName", albumService.getAlbumById(albumId).getName());
         map.put("albumId", albumId);
         map.put("imageId", imageId);
         return new ModelAndView("picture", map);

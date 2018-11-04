@@ -23,7 +23,7 @@ public class GalleryApplication {
             galleryHomeDirectory = args[0];
         }
 
-        ConfigurableApplicationContext context = SpringApplication.run(GalleryApplication.class, args);
+        SpringApplication.run(GalleryApplication.class, args);
     }
 
     public static String getGalleryHomeDirectory() {
