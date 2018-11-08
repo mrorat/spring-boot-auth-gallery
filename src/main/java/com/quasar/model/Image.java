@@ -117,7 +117,7 @@ public class Image implements Comparable<Image> {
 
     public int compareTo(Image i) {
         int result = this.createdDate.compareTo(i.getDateTaken());
-        return result != 0 ? result : this.getId().compareTo(i.imageId);
+        return result != 0 ? result : this.getName().compareTo(i.name);
     }
 
     public boolean equals(Object image) {
