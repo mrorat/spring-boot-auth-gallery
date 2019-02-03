@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.quasar.controllers.dto.Rotation;
 import com.quasar.dao.ImageRepository;
 import com.quasar.model.Image;
 
@@ -46,6 +47,12 @@ public class ImageServiceImpl implements ImageService {
 	public SortedSet<Image> getImagesForUser(String userid) {
 		// TODO Auto-generated method stub
 		return new TreeSet<Image>(imageDAO.getImagesForUser(userid));
+	}
+
+	@Override
+	public void saveRotation(String iid, Rotation rotation, String userId) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

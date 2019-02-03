@@ -11,13 +11,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.quasar.controllers.dto.Rotation;
 import com.quasar.files.FileHandler;
 import com.quasar.files.InputStreamWithSize;
 import com.quasar.model.Image;
+import com.quasar.security.User;
 import com.quasar.service.AlbumService;
 import com.quasar.service.ImageService;
 
@@ -120,6 +123,17 @@ public class ImageHandler {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         this.albumService.renameAlbum(albumId, newAlbumName);
         System.out.printf("User [%s] selected renamed album [ID: %s] to new name [%s]%n", userName, albumId, newAlbumName);
+    }
+    
+    @RequestMapping(
+            path = {"/images/{iid}/rotate"},
+            method = {RequestMethod.POST}
+        )
+    public void rotateImage(@PathVariable String iid, @RequestParam("rotation") Rotation rotation) {
+    	String userId = ((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getID();
+    	String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+    	this.imageService.saveRotation(iid, rotation, userId);
+    	System.out.printf("User [%s] rotated image [ID: %s] by [%s]%n", userName, iid, rotation);
     }
 
     private void modifyResponseHeaders(HttpServletResponse response, int contentLength, String imageId, int cacheMaxAge) {

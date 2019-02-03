@@ -21,6 +21,7 @@ import com.quasar.dao.UserRepository;
 import com.quasar.security.User;
 
 @Controller
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
 
 	private UserRepository userRepository;
@@ -30,7 +31,6 @@ public class AdminController {
 		this.userRepository = userRepository;
 	}
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(
         value = {"/admin"},
         method = {RequestMethod.GET}

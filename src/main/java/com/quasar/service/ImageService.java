@@ -4,6 +4,7 @@ import java.util.SortedSet;
 
 import org.springframework.cache.annotation.Cacheable;
 
+import com.quasar.controllers.dto.Rotation;
 import com.quasar.model.Image;
 
 public interface ImageService {
@@ -15,4 +16,6 @@ public interface ImageService {
     SortedSet<Image> getImages();
     
     SortedSet<Image> getImagesForUser(String userid);
+
+	void saveRotation(String iid, Rotation rotation, String userId);
 }

@@ -1,6 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
+<#import "master/master.ftl" as m>
+<@m.indexmaster><!DOCTYPE html>
+
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../css/main.css">
@@ -47,8 +47,15 @@
                 case 37 : if (enablePrev) { window.location = $('div.div_prev a').attr('href'); } break;
                 case 38 : window.location = $('div.div_back a').attr('href'); break;
                 case 39 : if (enableNext) { window.location = $('div.div_next a').attr('href'); } break;
+                case 76 : rotate(-90); break;
+                case 80 : rotate(90); break;
+                default : alert(e.keyCode); break;
             }});
         });
+        
+        function rotate(deg) {
+        	alert(deg);
+        }
 	</script>
 </head>
 <body class="center">
@@ -59,4 +66,5 @@
         <img class="image-full-screen" id="image_1" ng-init="gi('${albumId}', '${imageId}', 'image_1')">
   	</div>
 </body>
-</html>
+
+</@m.indexmaster>

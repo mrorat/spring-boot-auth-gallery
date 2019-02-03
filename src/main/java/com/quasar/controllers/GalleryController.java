@@ -2,6 +2,7 @@ package com.quasar.controllers;
 
 import com.quasar.GalleryApplication;
 import com.quasar.files.FileHandler;
+import com.quasar.managers.AlbumManager;
 import com.quasar.model.Album;
 import com.quasar.model.Image;
 import com.quasar.repository.Repository;
@@ -37,7 +38,10 @@ public class GalleryController {
     private static SortedSet<Album> albums = new TreeSet<>();
     
     @Autowired
-    private AlbumService albumService;
+    private AlbumService albumService;    
+    
+    @Autowired
+    private AlbumManager albumManager;
     
     @Autowired
     private FileHandler fileHandler;
@@ -136,7 +140,7 @@ public class GalleryController {
 
         System.out.printf("Loaded %d albums from database", albums.size());
         Map<String, Object> map = new HashMap<>();
-        map.put("albums", this.albumService.getAlbumsForUser(((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getID()));
+        map.put("albums", this.albumManager.getAlbumsForCurrentUser());
         return new ModelAndView("gallery", map);
     }
 

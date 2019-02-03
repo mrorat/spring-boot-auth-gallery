@@ -31,14 +31,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     protected void configure(HttpSecurity http) throws Exception {
-        ((HttpSecurity)((HttpSecurity)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)
+        ((HttpSecurity)((HttpSecurity)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)
         		((HttpSecurity)http.headers().cacheControl().disable().and()).authorizeRequests().anyRequest()).fullyAuthenticated()
         		.antMatchers(new String[]{"/", "/home"})).permitAll()
         		.antMatchers(new String[]{"/admin/**"})).access("hasRole('ADMIN')")
-        		.antMatchers(new String[]{"/images"})).access("hasRole('USER')")
-        		.antMatchers(new String[]{"/user-profile"})).access("hasRole('USER')")
+        		.antMatchers(new String[]{"/images","/user-profile"})).access("hasRole('USER')")
         		.antMatchers(new String[]{"/gallery"})).access("hasRole('GUEST')")
-        		.and()).formLogin().and()).exceptionHandling().accessDeniedPage("/access-denied");
+        		.and())
+        		.formLogin().and()
+        		.logout().logoutUrl("/logout").logoutSuccessUrl("/")
+        		.and())
+        .exceptionHandling().accessDeniedPage("/access-denied");
     }
 
     @Bean

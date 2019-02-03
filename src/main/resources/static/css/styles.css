@@ -79,6 +79,9 @@ article {
   height: 200px;
   width: 100%;
   object-fit: cover;
+   /*   -ms-transform: rotate(75deg); /* IE 9 */
+   /* -webkit-transform: rotate(75deg); /* Safari 3-8 */
+  /*  transform: rotate(75deg); */
 }
 
 .article-title {
