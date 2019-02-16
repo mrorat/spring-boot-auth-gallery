@@ -3,9 +3,11 @@ package com.quasar.service;
 import com.quasar.security.User;
 
 public interface UserService {
-    User save(User var1);
+    User save(User user);
 
-    User getUserByEmail(String var1);
+    User getUserByEmail(String email);
 
     Iterable<User> getAllAdminUsers();
+
+	User getUserById(String userId);
 }

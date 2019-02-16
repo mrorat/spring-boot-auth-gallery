@@ -1,0 +1,13 @@
+standard-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+standard-table.th, td {
+  text-align: left;
+  padding: 8px;
+}
+standard-table.tr, td {
+  padding: 0px;
+}
+
+standard-table.tr:nth-child(even) {background-color: #f2f2f2;}

@@ -1,15 +1,5 @@
 package com.quasar.controllers;
 
-import com.quasar.GalleryApplication;
-import com.quasar.files.FileHandler;
-import com.quasar.managers.AlbumManager;
-import com.quasar.model.Album;
-import com.quasar.model.Image;
-import com.quasar.repository.Repository;
-import com.quasar.security.User;
-import com.quasar.service.AlbumService;
-import com.quasar.service.ImageService;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,9 +11,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +20,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.quasar.GalleryApplication;
+import com.quasar.files.FileHandler;
+import com.quasar.managers.AlbumManager;
+import com.quasar.model.Album;
+import com.quasar.model.Image;
+import com.quasar.repository.Repository;
+import com.quasar.service.AlbumService;
+import com.quasar.service.ImageService;
 
 @Controller
 public class GalleryController {
@@ -46,12 +44,13 @@ public class GalleryController {
     @Autowired
     private FileHandler fileHandler;
     
-    @Value("${gallery.directory}")
-    String homeDirectory;
+    
+    String homeDirectory = "c:\\__FOTO\\__TEST";
 
     @Autowired
 	private ImageService imageService;
 
+    @Autowired
     public GalleryController() {
     }
 

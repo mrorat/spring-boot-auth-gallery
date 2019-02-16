@@ -1130,7 +1130,7 @@
 		}
 
 		table td {
-			padding: 0.75em 0.75em;
+			padding: 0.1em 0.1em;
 		}
 
 		table th {
@@ -1198,194 +1198,59 @@
 		border-color: rgba(144, 144, 144, 0.25);
 	}
 
-/* Header */
+/* Style the header with a grey background and some padding */
+.header {
+  overflow: hidden;
+  background-color: #f1f1f1;
+  padding: 20px 10px;
+}
 
-	#header {
-		-moz-transition: background 1s ease-in-out, height 0.2s ease-in-out;
-		-webkit-transition: background 1s ease-in-out, height 0.2s ease-in-out;
-		-ms-transition: background 1s ease-in-out, height 0.2s ease-in-out;
-		transition: background 1s ease-in-out, height 0.2s ease-in-out;
-		display: -moz-flex;
-		display: -webkit-flex;
-		display: -ms-flex;
-		display: flex;
-		-moz-justify-content: center;
-		-webkit-justify-content: center;
-		-ms-justify-content: center;
-		justify-content: center;
-		-moz-align-items: center;
-		-webkit-align-items: center;
-		-ms-align-items: center;
-		align-items: center;
-		display: -ms-flexbox;
-		-ms-flex-align: center;
-		-ms-flex-pack: center;
-		background: rgba(254, 254, 254, 0.85);
-		position: fixed;
-		top: 0;
-		width: 100%;
-		height: 100vh;
-		z-index: 10001;
-	}
+/* Style the header links */
+.header a {
+  float: left;
+  color: black;
+  text-align: center;
+  padding: 12px;
+  text-decoration: none;
+  font-size: 18px;
+  line-height: 25px;
+  border-radius: 4px;
+}
 
-		#header .inner {
-			-moz-transition: height 0.2s ease-in-out, width 0.2s ease-in-out;
-			-webkit-transition: height 0.2s ease-in-out, width 0.2s ease-in-out;
-			-ms-transition: height 0.2s ease-in-out, width 0.2s ease-in-out;
-			transition: height 0.2s ease-in-out, width 0.2s ease-in-out;
-			display: -moz-flex;
-			display: -webkit-flex;
-			display: -ms-flex;
-			display: flex;
-			-moz-flex-direction: column;
-			-webkit-flex-direction: column;
-			-ms-flex-direction: column;
-			flex-direction: column;
-			-moz-justify-content: center;
-			-webkit-justify-content: center;
-			-ms-justify-content: center;
-			justify-content: center;
-			-moz-align-items: center;
-			-webkit-align-items: center;
-			-ms-align-items: center;
-			align-items: center;
-			display: -ms-flexbox;
-			-ms-flex-align: center;
-			-ms-flex-pack: center;
-			background: #e74c3c;
-			border-radius: 100%;
-			width: 35em;
-			height: 35em;
-			padding: 4em;
-			text-align: center;
-			box-shadow: 0 0 0 1em #FFF;
-			cursor: default;
-		}
+/* Style the logo link (notice that we set the same value of line-height and font-size to prevent the header to increase when the font gets bigger */
+.header a.logo {
+  font-size: 25px;
+  font-weight: bold;
+}
 
-			#header .inner .content {
-				-moz-transition: opacity 1s ease-in-out;
-				-webkit-transition: opacity 1s ease-in-out;
-				-ms-transition: opacity 1s ease-in-out;
-				transition: opacity 1s ease-in-out;
-				opacity: 1;
-			}
+/* Change the background color on mouse-over */
+.header a:hover {
+  background-color: #ddd;
+  color: black;
+}
 
-				#header .inner .content h1 {
-					font-size: 4em;
-					font-family: 'Pattaya', sans-serif;
-					margin: 0 0 .25em 0;
-					color: #fff;
-				}
+/* Style the active/current link*/
+.header a.active {
+  background-color: dodgerblue;
+  color: white;
+}
 
-				#header .inner .content h2 {
-					font-size: 1.5em;
-					color: #fff;
-					margin: 0 0 1em 0;
-				}
+/* Float the link section to the right */
+.header-right {
+  float: right;
+}
 
-			#header .inner .button {
-				-moz-transition: background 1s ease-in-out;
-				-webkit-transition: background 1s ease-in-out;
-				-ms-transition: background 1s ease-in-out;
-				transition: background 1s ease-in-out;
-				margin: 0;
-				border-radius: 30px;
-			}
-
-				#header .inner .button.hidden {
-					display: none;
-					cursor: pointer;
-				}
-
-			#header .inner.hidden {
-				display: none;
-			}
-
-		#header.hide, #header.preview {
-			-moz-transition: background 0.2s ease-in-out, height 1s ease-in-out;
-			-webkit-transition: background 0.2s ease-in-out, height 1s ease-in-out;
-			-ms-transition: background 0.2s ease-in-out, height 1s ease-in-out;
-			transition: background 0.2s ease-in-out, height 1s ease-in-out;
-			background: none;
-			height: 0;
-		}
-
-			#header.hide .inner, #header.preview .inner {
-				height: 6em;
-				width: 6em;
-				padding: 2em;
-			}
-
-				#header.hide .inner .content, #header.preview .inner .content {
-					opacity: 0;
-				}
-
-					#header.hide .inner .content h1, #header.preview .inner .content h1 {
-						display: none;
-					}
-
-					#header.hide .inner .content h2, #header.preview .inner .content h2 {
-						display: none;
-					}
-
-			#header.hide .button.big, #header.preview .button.big {
-				display: none;
-			}
-
-			#header.hide .button.hidden, #header.preview .button.hidden {
-				text-decoration: none;
-				padding-top: 1.5em;
-				padding-left: 0;
-				padding-right: 0;
-				background: none;
-				display: inline-block;
-			}
-
-				#header.hide .button.hidden:before, #header.preview .button.hidden:before {
-					-moz-osx-font-smoothing: grayscale;
-					-webkit-font-smoothing: antialiased;
-					font-family: FontAwesome;
-					font-style: normal;
-					font-weight: normal;
-					text-transform: none !important;
-				}
-
-				#header.hide .button.hidden:before, #header.preview .button.hidden:before {
-					content: '\f015';
-					color: #FFF;
-					font-size: 1.5em;
-				}
-
-				#header.hide .button.hidden span, #header.preview .button.hidden span {
-					display: none;
-				}
-
-		@media screen and (max-width: 736px) {
-
-			#header .inner {
-				width: 25em;
-				height: 25em;
-				font-size: .75em;
-				padding: 3em;
-			}
-
-		}
-
-		@media screen and (max-width: 480px) {
-
-			#header .inner {
-				width: 26em;
-				height: 26em;
-				padding: 2em;
-				font-size: .65em;
-			}
-
-				#header .inner .button {
-					padding-left: 2em;
-					padding-right: 2em;
-				}
-
-		}
+/* Add media queries for responsiveness - when the screen is 500px wide or less, stack the links on top of each other */
+@media screen and (max-width: 500px) {
+  .header a {
+    float: none;
+    display: block;
+    text-align: left;
+  }
+  .header-right {
+    float: none;
+  }
+}
 
 /* Main */
 

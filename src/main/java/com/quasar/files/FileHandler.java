@@ -124,7 +124,8 @@ public class FileHandler {
     public void createThumbnail(File file) {
         Callable<Integer> task = () -> {
             String thumbnailFileName = this.getPathForThumbnailImage(file);
-            if (!(new File(thumbnailFileName)).exists()) {
+            File thumbnailFile = new File(thumbnailFileName);
+            if (!thumbnailFile.exists() || thumbnailFile.length() == 0) {
                 System.out.println(Instant.now() + " Creating thumbnail file for: " + file.getPath());
                 FileImageOutputStream output = null;
 

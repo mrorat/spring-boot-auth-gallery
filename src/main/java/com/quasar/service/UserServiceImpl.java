@@ -27,4 +27,9 @@ public class UserServiceImpl implements UserService {
     public Iterable<User> getAllAdminUsers() {
         return this.userDAO.findAllByRoleName(ROLES.ROLE_ADMIN.name());
     }
+
+	@Override
+	public User getUserById(String userId) {
+		return this.userDAO.findByUserid(userId);
+	}
 }

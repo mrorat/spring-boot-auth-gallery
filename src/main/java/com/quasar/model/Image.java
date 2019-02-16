@@ -43,6 +43,8 @@ public class Image implements Comparable<Image> {
     private String nextId;
     @Column(name = "previous_image_id")
     private String previousId;
+    @Column(name = "is_vertical")
+    private boolean isVertical;
 
     public Image() {}
     
@@ -115,7 +117,11 @@ public class Image implements Comparable<Image> {
         this.previousId = previousId;
     }
 
-    public int compareTo(Image i) {
+    public boolean isVertical() {
+		return isVertical;
+	}
+
+	public int compareTo(Image i) {
         int result = this.createdDate.compareTo(i.getDateTaken());
         return result != 0 ? result : this.getName().compareTo(i.name);
     }

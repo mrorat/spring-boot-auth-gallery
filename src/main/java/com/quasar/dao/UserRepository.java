@@ -1,14 +1,12 @@
 package com.quasar.dao;
 
-import com.quasar.security.User;
-
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
+import com.quasar.security.User;
+
 public interface UserRepository extends CrudRepository<User, String> {
 	
     @SuppressWarnings("unchecked")
@@ -22,7 +20,11 @@ public interface UserRepository extends CrudRepository<User, String> {
     )
     Iterable<User> findAllByRoleName(String var1);
 
-    User findByUsername(String var1);
+//    @Query(
+//            value = "SELECT * FROM user u WHERE u.username=?1",
+//            nativeQuery = true
+//        )
+	User findByUsername(String var1);
     
     List<User> findAll();
 }

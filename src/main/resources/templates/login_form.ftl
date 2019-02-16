@@ -13,7 +13,7 @@
 					password-parameter="j_password" 
 					login-processing-url="/j_spring_security_check" 
 					authentication-failure-url="/login?login_error=1">
-					<input type="hidden"  name="${_csrf.parameterName}"   value="${_csrf.token}"/>
+					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 		    <label for="username">Username</label><input type="text" id="username" name="j_username"><br/>
 		    <label for="password">Password</label><input type="password" id="password" name="j_password"><br/>
 		    <input type="submit" value="Login!">

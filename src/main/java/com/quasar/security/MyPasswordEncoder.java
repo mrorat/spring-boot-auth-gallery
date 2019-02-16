@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MyPasswordEncoder implements PasswordEncoder {
-    private static int logRounds = 12;
+    private static int logRounds = 10;
 
     public MyPasswordEncoder() {
     }
@@ -16,18 +16,29 @@ public class MyPasswordEncoder implements PasswordEncoder {
     }
 
     public String encode(CharSequence passwordPlaintext) {
-        String salt = BCrypt.gensalt(logRounds);
+        String salt = BCrypt.gensalt();
         String hashed_password = BCrypt.hashpw((String)passwordPlaintext, salt);
         return hashed_password;
     }
 
-    public boolean matches(CharSequence storedHash, String passwordPlaintext) {
+//    public boolean matches(String passwordPlaintext, CharSequence storedHash) {
+//        boolean password_verified = false;
+//        if (null != storedHash && ((String)storedHash).startsWith("$2a$")) {
+//            password_verified = BCrypt.checkpw(passwordPlaintext, (String)storedHash);
+//            return password_verified;
+//        } else {
+//            throw new IllegalArgumentException("Invalid hash provided for comparison");
+//        }
+//    }
+
+	@Override
+	public boolean matches(CharSequence encodedPassword, String rawPassword) {
         boolean password_verified = false;
-        if (null != storedHash && ((String)storedHash).startsWith("$2a$")) {
-            password_verified = BCrypt.checkpw(passwordPlaintext, (String)storedHash);
+        if (null != encodedPassword && ((String)encodedPassword).startsWith("$2a$")) {
+            password_verified = BCrypt.checkpw((String) rawPassword, (String)encodedPassword);
             return password_verified;
         } else {
             throw new IllegalArgumentException("Invalid hash provided for comparison");
         }
-    }
+	}
 }

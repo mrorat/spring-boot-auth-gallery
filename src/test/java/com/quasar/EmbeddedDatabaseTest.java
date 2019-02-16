@@ -12,6 +12,7 @@
 //import org.springframework.test.context.junit4.SpringRunner;
 //
 //import com.wix.mysql.config.MysqldConfig;
+//import com.quasar.dao.UserRepository;
 //import com.quasar.model.Album;
 //import com.quasar.repository.GalleryRepository;
 //import com.wix.mysql.EmbeddedMysql;
@@ -32,7 +33,7 @@
 //	EmbeddedMysql mysqld;
 //	
 //	@Autowired
-//	private GalleryRepository galleryRepository;
+//	private UserRepository userRepository;
 //	
 //	@Before
 //	public void before() {

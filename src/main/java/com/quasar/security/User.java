@@ -1,11 +1,12 @@
 package com.quasar.security;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +16,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,6 +40,15 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private boolean enabled;
+    @Column(name = "created_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdDate;
+    @Column(name = "deleted_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date deletedDate;
+    @Column(name = "is_deleted")
+    private String isDeleted;
+    
     @ManyToMany(
         fetch = FetchType.EAGER,
         cascade = {CascadeType.ALL}
@@ -59,6 +72,7 @@ public class User implements UserDetails {
     public User(Collection<Role> roles) {
         this();
         this.roles.addAll(roles);
+        this.isDeleted = "NOT_DELETED";
     }
 
     public String getUsername() {
@@ -105,6 +119,10 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return this.enabled;
     }
+    
+    public boolean isDeleted() {
+    	return this.isDeleted != null && this.isDeleted.equals(userid);
+    }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -134,4 +152,9 @@ public class User implements UserDetails {
             return r.getName().equals(role.name());
         }).findFirst().isPresent();
     }
+
+	public void markAsDeleted() {
+		this.deletedDate = new Date();
+		this.isDeleted = userid;
+	}
 }

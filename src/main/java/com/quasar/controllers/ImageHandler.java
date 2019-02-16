@@ -76,6 +76,8 @@ public class ImageHandler {
         method = {RequestMethod.GET}
     )
     public void getThumbnailImageAsBase64(HttpServletResponse response, @PathVariable String albumId, @PathVariable String imageId) throws IOException {
+    	String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+    	System.out.println(userName);
         String base64FileContent = this.fileHandler.getFileContentAsBase64Thumbnail(albumId, imageId);
         this.modifyResponseHeaders(response, base64FileContent.length(), imageId, 7776000);
         response.getOutputStream().write(base64FileContent.getBytes());

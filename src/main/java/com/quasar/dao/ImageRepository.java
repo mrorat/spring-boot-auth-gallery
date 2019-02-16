@@ -13,7 +13,7 @@ public interface ImageRepository extends CrudRepository<Image, String> {
 	@SuppressWarnings("unchecked")
 	Image save(Image var1);
 
-	Image findOne(String id);
+//	Image findOne(String id);
 
     @Query(
             value = "SELECT * FROM image i JOIN album a ON a.albumid=i.albumid WHERE a.albumid=?1",

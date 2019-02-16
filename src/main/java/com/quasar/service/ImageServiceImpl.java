@@ -27,7 +27,7 @@ public class ImageServiceImpl implements ImageService {
 	}
 
 	public Image getImageById(String id) {
-		return this.imageDAO.findOne(id);
+		return this.imageDAO.findById(id).get();
 	}
 
 	public SortedSet<Image> getImages() {
