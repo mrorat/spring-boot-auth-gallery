@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MyPasswordEncoder implements PasswordEncoder {
-    private static int logRounds = 10;
 
     public MyPasswordEncoder() {
     }
@@ -20,16 +19,6 @@ public class MyPasswordEncoder implements PasswordEncoder {
         String hashed_password = BCrypt.hashpw((String)passwordPlaintext, salt);
         return hashed_password;
     }
-
-//    public boolean matches(String passwordPlaintext, CharSequence storedHash) {
-//        boolean password_verified = false;
-//        if (null != storedHash && ((String)storedHash).startsWith("$2a$")) {
-//            password_verified = BCrypt.checkpw(passwordPlaintext, (String)storedHash);
-//            return password_verified;
-//        } else {
-//            throw new IllegalArgumentException("Invalid hash provided for comparison");
-//        }
-//    }
 
 	@Override
 	public boolean matches(CharSequence encodedPassword, String rawPassword) {

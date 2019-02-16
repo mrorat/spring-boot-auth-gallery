@@ -97,13 +97,6 @@ public class AdminController {
 	@RequestMapping(value = "/show-roles", method = RequestMethod.GET)
 	public ModelAndView getShowRolesPage()
 	{
-//		Map<String, Object> map = new HashMap<>();
-//		Set<String> roles = new HashSet<String>();
-//		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities())
-//		{
-//			roles.add(ga.getAuthority());
-//		}
-//		map.put("roles", roles);
 		return new ModelAndView("admin/show_roles");
 	}
 	

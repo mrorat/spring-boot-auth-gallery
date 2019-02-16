@@ -55,17 +55,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     	        return true;
     	    }};
     	
-        ((HttpSecurity)((HttpSecurity)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)((AuthorizedUrl)
-        		((HttpSecurity)http.headers().cacheControl().disable().and()).csrf().requireCsrfProtectionMatcher(csrfRequestMatcher).and().authorizeRequests().anyRequest()).fullyAuthenticated()
-        		.antMatchers(new String[]{"/", "/home"})).permitAll()
-        		.antMatchers(new String[]{"/admin/**"})).access("hasRole('ADMIN')")
-        		.antMatchers(new String[]{"/images","/user-profile"})).access("hasRole('USER')")
-        		.antMatchers(new String[]{"/gallery"})).access("hasRole('GUEST')")
-        		.and())
+        	http.headers().cacheControl().disable().and()
+        		.csrf().requireCsrfProtectionMatcher(csrfRequestMatcher).and()
+        		.authorizeRequests()
+        		.antMatchers(new String[]{"/", "/home"}).anonymous()
+        		.antMatchers(new String[]{"/admin/**"}).hasRole("ADMIN")
+        		.antMatchers(new String[]{"/profile/**"}).hasRole("USER")
+        		.antMatchers(new String[]{"/images","/user-profile"}).hasRole("USER")
+        		.antMatchers(new String[]{"/gallery"}).hasRole("GUEST").and()
         		.formLogin().and()
-        		.logout().logoutUrl("/logout").logoutSuccessUrl("/")
-        		.and())
-        .exceptionHandling().accessDeniedPage("/access-denied");
+        		.logout().logoutUrl("/logout").logoutSuccessUrl("/").and()
+        		.exceptionHandling().accessDeniedPage("/access-denied");
     }
 
     @Bean
