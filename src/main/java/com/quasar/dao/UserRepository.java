@@ -20,11 +20,11 @@ public interface UserRepository extends CrudRepository<User, String> {
     )
     Iterable<User> findAllByRoleName(String var1);
 
-//    @Query(
-//            value = "SELECT * FROM user u WHERE u.username=?1",
-//            nativeQuery = true
-//        )
-	User findByUsername(String var1);
+    @Query(
+            value = "SELECT * FROM user u WHERE u.username=?1 AND u.enabled=1 AND u.deleted_date IS NULL",
+            nativeQuery = true
+        )
+	User findByUsername(String userName);
     
     List<User> findAll();
 }

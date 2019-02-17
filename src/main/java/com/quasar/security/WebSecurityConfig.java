@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer.AuthorizedUrl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -57,7 +56,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     	
         	http.headers().cacheControl().disable().and()
         		.csrf().requireCsrfProtectionMatcher(csrfRequestMatcher).and()
-        		.authorizeRequests()
+        		.authorizeRequests().anyRequest().fullyAuthenticated()
         		.antMatchers(new String[]{"/", "/home"}).anonymous()
         		.antMatchers(new String[]{"/admin/**"}).hasRole("ADMIN")
         		.antMatchers(new String[]{"/profile/**"}).hasRole("USER")

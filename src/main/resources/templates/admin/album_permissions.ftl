@@ -10,7 +10,7 @@
 	            data: { '${_csrf.parameterName}' : '${_csrf.token}' },
 	            type: 'POST'
 	        }).done(function(responseData) {
-	            alert('Done: ', responseData);
+	            
 	        }).fail(function() {
 	            alert('Failed');
 	        });

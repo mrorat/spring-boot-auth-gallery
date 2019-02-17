@@ -5,29 +5,74 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.quasar.dao.AlbumRepository;
+import com.quasar.dao.UserRepository;
+import com.quasar.dto.PasswordDTO;
 import com.quasar.model.Album;
+import com.quasar.security.MyPasswordEncoder;
+import com.quasar.security.User;
 
 @Controller
+@RequestMapping("/user")
 public class ProfileController
 {
 	@Autowired
 	private AlbumRepository albumRepository;
 	
-	@RequestMapping(value = "/user-profile", method = RequestMethod.GET)
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private MyPasswordEncoder myPasswordEncoder;
+	
+	@GetMapping(value = "/profile")
 	public ModelAndView getUserProfilePage(@RequestParam Optional<String> error)
 	{
 		Map<String, Object> map = new HashMap<>();
 		List<Album> albums = (List<Album>) albumRepository.findAll();
 		
 		map.put("albums", albums);
-		return new ModelAndView("user_profile", map);
+		return new ModelAndView("user/profile", map);
 	}
+	
+	@GetMapping(path = "/passwordChangeForm")
+	public ModelAndView addUserForm() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("password", new PasswordDTO());
+		
+		return new ModelAndView("user/password_change", map);
+	}
+	
+	@PostMapping(value="/changePassword", consumes={"application/x-www-form-urlencoded"})
+	public RedirectView submit(@Valid @ModelAttribute("password") PasswordDTO passwordDTO, BindingResult result) {
+//        if (result.hasErrors()) {
+//            return "error";
+//        }
+        
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        User user = userRepository.findByUsername(userDetails.getUsername());
+        user.setPassword(passwordDTO.getPassword());
+        User savedUser = userRepository.save(user);
+        
+        Map<String, Object> model = new HashMap<>();
+        model.put("user", savedUser);
+        return new RedirectView("/user/profile");
+    }
+
 }

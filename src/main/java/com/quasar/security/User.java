@@ -88,7 +88,7 @@ public class User implements UserDetails {
     }
 
     public boolean isCredentialsNonExpired() {
-        return this.isEnabled();
+        return this.isEnabled() && !isDeleted();
     }
 
     public void setUsername(String username) {
