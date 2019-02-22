@@ -24,3 +24,16 @@ CREATE TABLE `gallery`.`album_permissions` (
     REFERENCES `gallery`.`album` (`albumid`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
+
+  CREATE TABLE `gallery`.`login_audit` (
+  `loginauditid` INT NOT NULL AUTO_INCREMENT,
+  `userid` VARCHAR(36) NULL,
+  `created_date` VARCHAR(45) NOT NULL,
+  `outcome` ENUM('SUCCESS', 'INVALID_PASSWORD', 'ACCOUNT_LOCKED', 'ACCOUNT_DELETED', 'IP_BLACKLISTED', 'USER_UNKNOWN') NOT NULL,
+  PRIMARY KEY (`loginauditid`),
+  INDEX `loginaudit_user_fk_idx` (`userid` ASC),
+  CONSTRAINT `loginaudit_user_fk`
+    FOREIGN KEY (`userid`)
+    REFERENCES `gallery`.`user` (`userid`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);

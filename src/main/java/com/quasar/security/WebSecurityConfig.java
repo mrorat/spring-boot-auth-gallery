@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
@@ -27,12 +28,18 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 )
 @ComponentScan({"com.quasar.*"})
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    protected CustomDaoUserDetailsAuthenticationHandler authProvider;
-    @Autowired
-    private UserDetailsService customUserDetailsService;
 
-    public WebSecurityConfig() {
+	protected CustomDaoUserDetailsAuthenticationHandler authProvider;
+    private UserDetailsService customUserDetailsService;
+    private AuthenticationFailureHandler authenticationFailureHandler;
+
+    @Autowired
+    public WebSecurityConfig(CustomDaoUserDetailsAuthenticationHandler authProvider, 
+    		UserDetailsService customUserDetailsService,
+    		AuthenticationFailureHandler authenticationFailureHandler) {
+    	this.authProvider = authProvider;
+    	this.customUserDetailsService = customUserDetailsService;
+    	this.authenticationFailureHandler = authenticationFailureHandler;
     }
 
     protected void configure(HttpSecurity http) throws Exception {
@@ -62,7 +69,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         		.antMatchers(new String[]{"/profile/**"}).hasRole("USER")
         		.antMatchers(new String[]{"/images","/user-profile"}).hasRole("USER")
         		.antMatchers(new String[]{"/gallery"}).hasRole("GUEST").and()
-        		.formLogin().and()
+        		.formLogin().failureHandler(authenticationFailureHandler).and()
         		.logout().logoutUrl("/logout").logoutSuccessUrl("/").and()
         		.exceptionHandling().accessDeniedPage("/access-denied");
     }
