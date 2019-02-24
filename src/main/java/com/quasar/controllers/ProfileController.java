@@ -24,7 +24,6 @@ import com.quasar.dao.AlbumRepository;
 import com.quasar.dao.UserRepository;
 import com.quasar.dto.PasswordDTO;
 import com.quasar.model.Album;
-import com.quasar.security.MyPasswordEncoder;
 import com.quasar.security.User;
 
 @Controller
@@ -37,11 +36,18 @@ public class ProfileController
 	@Autowired
 	private UserRepository userRepository;
 	
-	@Autowired
-	private MyPasswordEncoder myPasswordEncoder;
-	
 	@GetMapping(value = "/profile")
 	public ModelAndView getUserProfilePage(@RequestParam Optional<String> error)
+	{
+		Map<String, Object> map = new HashMap<>();
+		List<Album> albums = (List<Album>) albumRepository.findAll();
+		
+		map.put("albums", albums);
+		return new ModelAndView("user/profile", map);
+	}
+	
+	@GetMapping(value = "/profile/{userid}")
+	public ModelAndView getSomeUserProfilePage(@RequestParam Optional<String> error, @RequestParam(name="userid") String userid)
 	{
 		Map<String, Object> map = new HashMap<>();
 		List<Album> albums = (List<Album>) albumRepository.findAll();
@@ -60,9 +66,6 @@ public class ProfileController
 	
 	@PostMapping(value="/changePassword", consumes={"application/x-www-form-urlencoded"})
 	public RedirectView submit(@Valid @ModelAttribute("password") PasswordDTO passwordDTO, BindingResult result) {
-//        if (result.hasErrors()) {
-//            return "error";
-//        }
         
 		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
