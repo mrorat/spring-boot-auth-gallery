@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -45,8 +46,19 @@ public class Image implements Comparable<Image> {
     private String previousId;
     @Column(name = "is_vertical")
     private boolean isVertical;
+    @Column(name = "duplicate_of_imageid")
+    private String duplicateOfImageId;
 
     public Image() {}
+    
+    
+    public Image(Image duplicate, String originalImageId, String originalPath) {
+    	this.imageId = UUID.randomUUID().toString();
+    	this.name = duplicate.name;
+    	this.albumId = duplicate.getAlbumId();
+    	this.duplicateOfImageId = originalImageId;
+    	this.path = originalPath;
+    }
     
     public Image(File file, String albumId, FileHandler fileHandler) {
         this.name = file.getName();
@@ -56,9 +68,9 @@ public class Image implements Comparable<Image> {
         try {  // TODO extract date taken from EXIF
             BasicFileAttributes attr = fileHandler.getFileAttributes(file);
             this.createdDate = new Date(attr.creationTime().toMillis());
-        } catch (IOException var6) {
+        } catch (IOException ex) {
             this.createdDate = new Date(Calendar.getInstance().getTime().getTime());
-            var6.printStackTrace();
+            ex.printStackTrace();
         }
 
         try {
@@ -73,9 +85,9 @@ public class Image implements Comparable<Image> {
         return this.imageId;
     }
 
-    public void setId(String id) {
-        this.imageId = id;
-    }
+//    public void setId(String id) {
+//        this.imageId = id;
+//    }
 
     public String getAlbumId() {
         return this.albumId;
@@ -120,6 +132,14 @@ public class Image implements Comparable<Image> {
     public boolean isVertical() {
 		return isVertical;
 	}
+    
+	public String getDuplicateOfImageId() {
+		return duplicateOfImageId;
+	}
+
+	public void setDuplicateOfImageId(String duplicateOfImageId) {
+		this.duplicateOfImageId = duplicateOfImageId;
+	}
 
 	public int compareTo(Image i) {
         int result = this.createdDate.compareTo(i.getDateTaken());
@@ -129,4 +149,8 @@ public class Image implements Comparable<Image> {
     public boolean equals(Object image) {
         return this.getId().equals(((Image)image).getId());
     }
+
+	public Image createRefToDuplicate(Image duplicateImage) {
+		return new Image(duplicateImage, this.imageId, this.path);
+	}
 }

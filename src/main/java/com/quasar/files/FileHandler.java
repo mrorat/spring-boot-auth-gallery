@@ -3,6 +3,7 @@ package com.quasar.files;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +30,7 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.quasar.model.Album;
+import com.quasar.model.Image;
 import com.quasar.service.ImageService;
 
 @Service
@@ -44,14 +47,21 @@ public class FileHandler {
         this.executor = Executors.newFixedThreadPool(5);
     }
 
-    public InputStreamWithSize getStreamWithSize(String albumId, String imageId) throws IOException {
-        File f = new File(imageService.getImageById(imageId).getPath());
+    private Image getImageOrThrow(String imageId) {
+    	Optional<Image> image = imageService.getImageById(imageId);
+    	if (!image.isPresent())
+    		throw new RuntimeException("Image with ID: " + imageId + " does not exist in the database.");
+    	return image.get();
+    }
+    
+    public InputStreamWithSize getStreamWithSize(String albumId, String imageId) throws FileNotFoundException, IOException {
+        File f = new File(getImageOrThrow(imageId).getPath());
         return new InputStreamWithSize(new FileInputStream(f), Files.size(f.toPath()));
     }
 
     public String getFileContentAsBase64(String albumId, String imageId) throws IOException {
         System.out.println(Instant.now() + " Request to get image id: " + imageId);
-        String filePath = imageService.getImageById(imageId).getPath();
+        String filePath = getImageOrThrow(imageId).getPath();
         File f = new File(filePath);
         InputStream finput = new FileInputStream(f);
         Throwable var6 = null;
@@ -89,7 +99,7 @@ public class FileHandler {
     public String getFileContentAsBase64Thumbnail(String albumId, String imageId) throws IOException {
     	long start = System.currentTimeMillis();
         System.out.println(Instant.now() + " Request to get thumbnail for image id: " + imageId);
-        String filePath = imageService.getImageById(imageId).getThumbnailPath();
+        String filePath = getImageOrThrow(imageId).getThumbnailPath();
         File f = new File(filePath);
         InputStream finput = new FileInputStream(f);
         Throwable var6 = null;

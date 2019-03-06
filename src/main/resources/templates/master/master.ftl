@@ -1,3 +1,4 @@
+<#import "../security.tld" as sec>
 <#macro indexmaster title="gallery"><html>
 <head>
 <#include "../includes/head.ftl"/>

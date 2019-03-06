@@ -13,10 +13,15 @@ public interface AlbumRepository extends CrudRepository<Album, String> {
     @SuppressWarnings("unchecked")
 	Album save(Album var1);
 
-    Album findByAlbumid(String var1);
+    @Query(
+            value = "SELECT * FROM album a JOIN album_permissions ap ON ap.albumid=a.albumid WHERE a.albumid=?1 AND ap.userid=?2 AND ap.created_date<NOW() AND (ap.deleted_date IS NULL OR ap.deleted_date>NOW())",
+            nativeQuery = true)
+    Album findByAlbumidForUser(String albumId, String userId);
     
     @Query(
             value = "SELECT * FROM album a JOIN album_permissions ap ON ap.albumid=a.albumid WHERE ap.userid=?1 AND ap.created_date<NOW() AND (ap.deleted_date IS NULL OR ap.deleted_date>NOW())",
             nativeQuery = true)
 	List<Album> getAlbumsForUser(String userid);
+
+	Album findByAlbumid(String albumId);
 }

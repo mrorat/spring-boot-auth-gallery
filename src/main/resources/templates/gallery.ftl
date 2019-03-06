@@ -5,7 +5,7 @@
 
 	List of albums available for user<br>
 <#list albums as album>
-		<li><a href="/album/${album.name}/${album.albumid}">${album.name} <#if album.date??>${album.date?iso_utc}</#if></a><br/>
+		<li><a href="/album/${album.name?html}/${album.albumid}">${album.name} <#if album.date??>${album.date?iso_utc}</#if></a><br/>
 <#else>
     User doesn't have access to any albums
 </#list>

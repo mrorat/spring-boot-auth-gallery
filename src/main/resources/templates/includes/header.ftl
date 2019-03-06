@@ -3,7 +3,7 @@
   <div class="header-right">
     <a class="active" href="/gallery">Home</a>
     <a href="/logout">Logout</a>
-    <sec:authorize ifAllGranted="ROLE_ADMIN">
+    <sec:authorize access="hasRole('ROLE_ADMIN')">
     	<a href="/admin">Admin</a>
 	</sec:authorize>
   </div>

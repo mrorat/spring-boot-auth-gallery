@@ -69,7 +69,7 @@ public class GalleryController {
                 File[] imageFileList = directory.listFiles((filex) -> {
                     return !filex.isDirectory() && filex.toString().toLowerCase().endsWith("jpg");
                 });
-                Album album = this.checkIfUUIDAlreadyCreated(directory, images);
+                Album album = this.createUUIDFileIfDoesntExistAndReturnAlbum(directory, images);
                 this.fileHandler.createThumbnailDirectory(directory);
                 if (imageFileList != null) {
                     System.out.printf("Processing directory %s, image qty: %d%n", directory.getName(), imageFileList.length);
@@ -78,15 +78,27 @@ public class GalleryController {
                     for(int i = 0; i < imageFileList.length; ++i) {
                         File file = imageFileList[i];
                         Image image = new Image(file, album.getAlbumid().toString(), this.fileHandler);
+                        
+                        /* at this point we should know if this image already exist in our database
+                         * since we generate image id from the file CRC */
+                        
+                        Optional<Image> imageFromDbOptional = imageService.getImageById(image.getId());
+                        if (imageFromDbOptional.isPresent() && !imageFromDbOptional.get().getPath().equals(image.getPath())) {
+                        	image = imageFromDbOptional.get().createRefToDuplicate(image);
+                        }
+                        
                         images.add(image);
                         this.fileHandler.createThumbnail(file);
                         if (images.size() > 1) {
                             Image previousImage = (Image)images.get(images.size() - 2);
                             previousImage.setNextId(image.getId());
-                            Image prevImageFromDb = imageService.getImageById(previousImage.getId());
-                            prevImageFromDb.setNextId(image.getId());
-                            imageService.save(prevImageFromDb);
-                            image.setPreviousId(previousImage.getId());
+                            Optional<Image> prevImageFromDbOptional = imageService.getImageById(previousImage.getId());
+                            if (prevImageFromDbOptional.isPresent()) {
+                            	Image prevImageFromDb = prevImageFromDbOptional.get();
+                            	prevImageFromDb.setNextId(image.getId());
+                            	imageService.save(prevImageFromDb);
+                            	image.setPreviousId(previousImage.getId());
+                            }
                         }
                         imageService.save(image);
                     }
@@ -107,14 +119,14 @@ public class GalleryController {
         return new ModelAndView("redirect:/gallery");
     }
 
-    private Album checkIfUUIDAlreadyCreated(File directory, List<Image> images) {
+    private Album createUUIDFileIfDoesntExistAndReturnAlbum(File directory, List<Image> images) {
         File uuidFile = new File(directory + File.separator + "uuid");
         Album album = new Album(directory, images);
         if (uuidFile.exists()) {
             try {
                 album.setId((String)Files.readAllLines(uuidFile.toPath()).get(0));
-            } catch (IOException var6) {
-                var6.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
 
             return album;
@@ -171,10 +183,11 @@ public class GalleryController {
     )
     public ModelAndView getImagesForAlbum(@PathVariable String albumName, @PathVariable String albumId, @RequestParam Optional<String> error) {
         Map<String, Object> map = new HashMap<>();
+        Album album = albumService.getAlbumById(albumId);
         Set<Image> imagesForAlbum = imageService.getImagesForUser(albumId);
-        System.out.printf("get images for album: [%s] %s, images %d%n", albumId, albumName, imagesForAlbum.size());
+        System.out.printf("get images for album: [%s] %s, images %d%n", album.getAlbumid(), album.getName(), imagesForAlbum.size());
         map.put("images", imagesForAlbum);
-        map.put("albumName", albumName);
+        map.put("albumName", album.getName());
 //        return new ModelAndView("album", map);
         return new ModelAndView("gallery_cat_grid", map);
     }

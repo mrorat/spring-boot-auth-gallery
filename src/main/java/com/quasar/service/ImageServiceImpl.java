@@ -1,6 +1,7 @@
 package com.quasar.service;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -26,8 +27,8 @@ public class ImageServiceImpl implements ImageService {
 		return this.imageDAO.save(image);
 	}
 
-	public Image getImageById(String id) {
-		return this.imageDAO.findById(id).get();
+	public Optional<Image> getImageById(String id) {
+		return this.imageDAO.findById(id);
 	}
 
 	public SortedSet<Image> getImages() {

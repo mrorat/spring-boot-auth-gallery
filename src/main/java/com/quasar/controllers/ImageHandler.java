@@ -2,6 +2,7 @@ package com.quasar.controllers;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -102,7 +103,11 @@ public class ImageHandler {
     public void getImageDescription(HttpServletResponse response, @PathVariable String albumId, @PathVariable String imageId) throws IOException {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        Image image = imageService.getImageById(imageId);
+        Optional<Image> image = imageService.getImageById(imageId);
+        if (!image.isPresent()) {
+        	System.out.println("Image not found in the database, image ID: " + imageId);
+        	return;
+        }
         response.setContentType("application/json");
         response.getOutputStream().write(gson.toJson(image).getBytes());
         response.flushBuffer();

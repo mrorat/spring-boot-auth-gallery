@@ -47,7 +47,7 @@ public class Album implements Comparable<Album> {
 
     public Album(File directory, List<Image> images) {
         this.albumid = UUID.randomUUID().toString();
-        this.name = directory.getName().replace("_", "-");
+        this.name = directory.getName().replace("_", "-").replace("[", "(").replace("]", ")");
         this.path = directory.getPath();
         Iterator<Image> var3 = images.iterator();
 

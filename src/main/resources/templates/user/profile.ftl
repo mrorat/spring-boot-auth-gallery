@@ -7,4 +7,11 @@ You have access to these albums:
 	<#list albums as album>
 		<li>${album.name} - ${album.albumid}</li><br/>
 	</#list>
+	
+	
+	<#list currentUser.roles as role>
+    Role: ${role}<br/>
+<#else>
+    User doesn't have any roles
+</#list>
 </@m.indexmaster>
