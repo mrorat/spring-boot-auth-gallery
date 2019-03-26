@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="../../css/main.css">
 	<link rel="stylesheet" href="../../css/screen.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script language="JavaScript" type="text/javascript" src="/js/jquery-ui-personalized-1.5.2.packed.js"></script>
+    <script language="JavaScript" type="text/javascript" src="../../js/jquery-ui-min.js"></script>
 	<script>
 		var app = angular.module('myApp', []);
 		app.controller('myCtrl', function($scope, $http)
@@ -28,14 +28,20 @@
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var imageDescription = JSON.parse(this.responseText);
-                if (imageDescription.nextId != null && imageDescription.nextId != imageDescription.imageId) {
-                    document.getElementById("next").href = "/picture/${albumId}/" + imageDescription.nextId;
+               
+                if (imageDescription.value != null && imageDescription.value.nextId != null 
+                	&& imageDescription.value.nextId != imageDescription.value.imageId) {
+                    document.getElementById("next").href = "/picture/${albumId}/" + imageDescription.value.nextId;
                     enableNext = true;
                 }
-                if (imageDescription.previousId != null && imageDescription.previousId != imageDescription.imageId)  {
-                    document.getElementById("prev").href = "/picture/${albumId}/" + imageDescription.previousId;
+                if (imageDescription.value.previousId != null 
+                	&& imageDescription.value.previousId != imageDescription.value.imageId)  {
+                    document.getElementById("prev").href = "/picture/${albumId}/" + imageDescription.value.previousId;
                     enablePrev = true;
                 }
+            }
+            else {
+            	//alert("status of /getImageDescription call: " + this.status);
             }
         };
         xmlhttp.open("GET", url, true);
@@ -60,9 +66,11 @@
 </head>
 <body class="center">
 	<div ng-app="myApp" ng-controller="myCtrl" >
-        <div style="float: left;"><div class="div_prev"><a href="" class="prev" id="prev">prev</a></div>
-        <div class="div_back"><a href="/album/${albumName}/${albumId}" class="back" id="back">back</a></div>
-        <div class="div_next"><a href="" class="next" id="next">next</a></div></div>
+        <div style="float: left;">
+        	<div class="div_prev"><a href="" class="prev" id="prev">prev</a></div>
+	        <div class="div_back"><a href="/album/${albumName}/${albumId}" class="back" id="back">back</a></div>
+	        <div class="div_next"><a href="" class="next" id="next">next</a></div>
+        </div>
         <img class="image-full-screen" id="image_1" ng-init="gi('${albumId}', '${imageId}', 'image_1')">
   	</div>
 </body>

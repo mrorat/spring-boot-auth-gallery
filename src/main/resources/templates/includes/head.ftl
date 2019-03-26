@@ -4,25 +4,6 @@
 	<link rel="stylesheet" href="../../css/main.css">
 	<link rel="stylesheet" href="../../css/slider-switch.css">
 	<link rel="stylesheet" href="../../css/screen.css">
-	<script>
-		var app = angular.module('myApp', []);
-		app.controller('myCtrl', function($scope, $http)
-		{
-		    $scope.gi = function(albumId, imageId, imgTagId) 
-		    {
-		    	$http.get('/imagesbase64/' + albumId + '/' + imageId)
-		    		.then(function(response)
-		    		{
-		    			document.getElementById(imgTagId).src = 'data:image/jpeg;base64,' + response.data;
-		       		});
-		    };
-		    $scope.gti = function(albumId, imageId, imgTagId) 
-		    {
-		    	$http.get('/imagesbase64/thumbnails/' + albumId + '/' + imageId)
-		    		.then(function(response)
-		    		{
-		    			document.getElementById(imgTagId).src = 'data:image/jpeg;base64,' + response.data;
-		       		});
-		    };
-		});
-	</script>
+<#macro head>
+<#nested/>
+</#macro>

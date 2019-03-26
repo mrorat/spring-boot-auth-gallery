@@ -16,6 +16,7 @@
 	        });
 	    } 
     </script>
+<h1>Setting permissions for user: ${userName}</h1>
 List of albums !<br>
 <table class="standard-table" sty>
    <thead>

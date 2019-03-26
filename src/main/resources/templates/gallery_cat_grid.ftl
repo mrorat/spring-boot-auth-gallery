@@ -1,5 +1,31 @@
 <#import "master/master.ftl" as m>
+<#import "includes/head.ftl" as h>
+
 <@m.indexmaster>
+    <main>
+      <div ng-app="myApp" ng-controller="myCtrl">
+      <section class="cards">
+	      <#if images?? && (images?size > 0)>
+		      
+				<#assign counter = 1>
+				<#list images as image>
+			        <article>
+			        <a href="/picture/${image.albumId}/${image.id}" data-lightbox="gallery">
+		                    <img class="article-img<#if image.vertical>-vertical</#if>" id="image_${counter}" 
+		                    ng-init="gti('${image.albumId}', '${image.id}', 'image_${counter}')" alt=" ">
+			          <h1 class="article-title">
+			            ${image.dateTaken?time}
+			          </h1></a>
+			        </article>
+			        <#assign counter++>
+				</#list>
+		  </#if>
+      </section>
+	  </div>	
+    </main>
+</@m.indexmaster>
+
+<@h.head>
  	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -45,28 +71,4 @@
 		});
 
 	</script>
-  </head>
-  <body>
-    <main>
-      <div ng-app="myApp" ng-controller="myCtrl">
-      <section class="cards">
-	      <#if images?? && (images?size > 0)>
-		      
-				<#assign counter = 1>
-				<#list images as image>
-			        <article>
-			        <a href="/picture/${image.albumId}/${image.id}" data-lightbox="gallery">
-		                    <img class="article-img<#if image.vertical>-vertical</#if>" id="image_${counter}" 
-		                    ng-init="gti('${image.albumId}', '${image.id}', 'image_${counter}')" alt=" ">
-			          <h1 class="article-title">
-			            ${image.dateTaken?time}
-			          </h1></a>
-			        </article>
-			        <#assign counter++>
-				</#list>
-		  </#if>
-      </section>
-	  </div>	
-    </main>
-  </body>
-</@m.indexmaster>
+</@h.head>

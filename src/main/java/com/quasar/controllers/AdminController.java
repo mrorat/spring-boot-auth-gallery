@@ -102,6 +102,10 @@ public class AdminController {
 	
 	@GetMapping("/{userId}/albumPermissions")
 	public ModelAndView getAlbumPermissionsPage(@PathVariable String userId) {
+		Optional<User> user = userRepository.findById(userId);
+		if (!user.isPresent()) {
+			new ModelAndView("access_denied");
+		}
 		Map<String, Object> map = new HashMap<>();
 		Set<Album> allAlbums = albumManager.getAllAlbums();
 		Set<Album> userAlbums = albumManager.getAlbumsForUser(userId);
@@ -114,6 +118,7 @@ public class AdminController {
 		albums.addAll(userAlbums.stream().map(x -> new AlbumWithPermissions(x, true)).collect(Collectors.toSet()));
 		map.put("albums", albums);
 		map.put("userId", userId);
+		map.put("userName", user.get().getUsername());
 		
 		return new ModelAndView("admin/album_permissions", map);
 	}

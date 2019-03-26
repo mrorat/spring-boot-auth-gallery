@@ -39,6 +39,12 @@ class ApplicationConfig {
 
     return factory.getObject();
   }
+  
+//  @Bean
+//  @ConditionalOnMissingBean(ClassPathTldsLoader.class)
+//  public ClassPathTldsLoader classPathTldsLoader(){
+//      return new ClassPathTldsLoader();
+//  }
 
 //  @Bean
   public PlatformTransactionManager transactionManager() {
