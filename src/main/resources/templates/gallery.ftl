@@ -1,5 +1,7 @@
 <#import "master/master.ftl" as m>
+
 <@m.indexmaster>
+
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 	<a href="/album/refresh">refresh</a>
 

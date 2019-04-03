@@ -33,7 +33,8 @@
 		    alert(e.keyCode);
             switch(e.keyCode)
             {
-                case 38 : window.location = $('div.div_back a').attr('href'); break;
+                case 38 : window.location = "/gallery"; break;
+                default : alert(e.keyCode); break;
             }});
         });
 	</script>

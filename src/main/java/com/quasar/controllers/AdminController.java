@@ -1,5 +1,6 @@
 package com.quasar.controllers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -38,6 +39,7 @@ import com.quasar.controllers.dto.AlbumWithPermissions;
 import com.quasar.dao.PermissionsRepository;
 import com.quasar.dao.RoleRepository;
 import com.quasar.dao.UserRepository;
+import com.quasar.dto.AlbumNameChangeRequest;
 import com.quasar.dto.UserDTO;
 import com.quasar.managers.AlbumManager;
 import com.quasar.model.Album;
@@ -45,6 +47,7 @@ import com.quasar.model.AlbumPermission;
 import com.quasar.security.ROLES;
 import com.quasar.security.Role;
 import com.quasar.security.User;
+import com.quasar.service.AlbumService;
 
 @RestController
 @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -53,16 +56,18 @@ public class AdminController {
 
 	private UserRepository userRepository;
 	private AlbumManager albumManager;
+	private AlbumService albumService;
 	private PermissionsRepository permissionsRepository;
 	private RoleRepository roleRepository;
 	
 	@Autowired
 	public AdminController(UserRepository userRepository, AlbumManager albumManager, PermissionsRepository permissionsRepository,
-			RoleRepository roleRepository) {
+			RoleRepository roleRepository, AlbumService albumService) {
 		this.userRepository = userRepository;
 		this.albumManager = albumManager;
 		this.permissionsRepository = permissionsRepository;
 		this.roleRepository = roleRepository;
+		this.albumService = albumService;
 	}
 
     @RequestMapping(
@@ -121,6 +126,43 @@ public class AdminController {
 		map.put("userName", user.get().getUsername());
 		
 		return new ModelAndView("admin/album_permissions", map);
+	}
+	
+	
+	@RequestMapping(path="/changeAlbumName/{albumId}", 
+		method = RequestMethod.POST)
+	public @ResponseBody Map<String, String> changeAlbumName(@PathVariable String albumId, @RequestBody AlbumNameChangeRequest body) {
+		Map<String, String> map = new HashMap<>();
+		
+		Album album = albumService.getAlbumById(albumId);
+		if (album != null) {
+			File albumFile = new File(album.getPath());
+			System.out.println("Changing album: " + albumId + ", old name: " + albumFile.getName() +", new name: " + body.getAlbumName());
+			
+			if (!albumFile.exists()) {
+				System.out.println("Directory ["+ albumFile.getAbsolutePath() + "] does not exists");
+			}
+			
+			File newAlbumFile = new File(album.getPath().replace(albumFile.getName(), body.getAlbumName()));
+			System.out.println("Old path: " + albumFile.getAbsolutePath());
+			System.out.println("New path: " + newAlbumFile.getAbsolutePath());
+			boolean renamingSuccess = albumFile.renameTo(newAlbumFile);
+
+			if (renamingSuccess) {
+				map.put("status", "renaming successful");
+				album.rename(newAlbumFile);
+				albumService.save(album);
+				System.out.println("All good, ranaming successful.");
+			}
+			else {
+				System.out.println("Renaming FAILED !!!");
+				map.put("status", "renaming unsuccessful");
+			}
+		}
+		else
+			map.put("status", "album not found");
+		
+		return map;
 	}
 	
 	@RequestMapping(path="/changeAlbumPermissions/{albumId}/{userId}/{isEnabled}", 

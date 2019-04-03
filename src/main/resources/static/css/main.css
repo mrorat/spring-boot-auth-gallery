@@ -1,4 +1,7 @@
-@import url(https://netdna.bootstrapcdn.com/font-awesome/4.1.0/fonts/fontawesome-webfont.woff?v=4.1.0);
+@font-face {
+    font-family: "FontAwsome";
+    src: url(https://netdna.bootstrapcdn.com/font-awesome/4.1.0/fonts/fontawesome-webfont.woff?v=4.1.0);
+}
 @import url(https://fonts.googleapis.com/css?family=Pattaya|Work+Sans:400,200,300);
 
 /*

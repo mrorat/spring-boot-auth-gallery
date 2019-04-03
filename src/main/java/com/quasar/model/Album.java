@@ -129,6 +129,7 @@ public class Album implements Comparable<Album> {
     }
 
     public void rename(File newNameAlbum) {
+    	this.name = newNameAlbum.getName();
         this.path = newNameAlbum.getPath();
     }
 }

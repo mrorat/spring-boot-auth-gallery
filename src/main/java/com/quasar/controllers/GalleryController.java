@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +34,8 @@ import com.quasar.service.ImageService;
 
 @Controller
 public class GalleryController {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(GalleryController.class);
 	
     private static SortedSet<Album> albums = new TreeSet<>();
     
@@ -63,6 +67,7 @@ public class GalleryController {
         });
         if (albumFileList != null) {
 
+        	Map<String, String> postponedImageDuplicateUpdates = new HashMap<>();
             for(int j = 0; j < albumFileList.length; ++j) {
                 File directory = albumFileList[j];
                 List<Image> images = new ArrayList<>();
@@ -100,7 +105,14 @@ public class GalleryController {
                             	image.setPreviousId(previousImage.getId());
                             }
                         }
-                        imageService.save(image);
+                        try {
+                        	imageService.save(image);
+                        } catch (Exception ex) {
+                        	LOGGER.warn("Failed to save image: " + image.toString());
+							postponedImageDuplicateUpdates.put(image.getId(), image.getDuplicateOfImageId());
+							image.setDuplicateOfImageId(null);
+							imageService.save(image);
+                        }
                     }
                 }
 
@@ -112,6 +124,14 @@ public class GalleryController {
                 album.setImages(images);
                 System.out.printf("Album %s [ID: %s] created with %d images%n", album.getName(), album.getAlbumid(), images.size());
                 albums.add(album);
+            }
+            
+            for (String imageId : postponedImageDuplicateUpdates.keySet()) {
+            	Optional<Image> i = imageService.getImageById(imageId);
+            	if (i.isPresent()) {
+            		i.get().setDuplicateOfImageId(postponedImageDuplicateUpdates.get(imageId));
+            		imageService.save(i.get());
+            	}
             }
         }
 
@@ -188,6 +208,7 @@ public class GalleryController {
         System.out.printf("get images for album: [%s] %s, images %d%n", album.getAlbumid(), album.getName(), imagesForAlbum.size());
         map.put("images", imagesForAlbum);
         map.put("albumName", album.getName());
+        map.put("albumId", album.getAlbumid());
 //        return new ModelAndView("album", map);
         return new ModelAndView("gallery_cat_grid", map);
     }

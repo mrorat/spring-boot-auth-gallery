@@ -27,7 +27,7 @@ import com.quasar.security.User;;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@SpringBootTest
+//@SpringBootTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @Transactional
 public class GalleryApplicationTests {

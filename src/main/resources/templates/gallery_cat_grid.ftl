@@ -1,7 +1,6 @@
 <#import "master/master.ftl" as m>
-<#import "includes/head.ftl" as h>
 
-<@m.indexmaster>
+<@m.indexmaster page="gallery" title="${albumName}">
     <main>
       <div ng-app="myApp" ng-controller="myCtrl">
       <section class="cards">
@@ -24,51 +23,3 @@
 	  </div>	
     </main>
 </@m.indexmaster>
-
-<@h.head>
- 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="../../css/reset.css">
-    <link rel="stylesheet" href="../../css/styles.css">
-    <link rel="stylesheet" href="../../css/main.css">
-
-	<script>
-		var app = angular.module('myApp', []);
-		app.controller('myCtrl', function($scope, $http)
-		{
-		    $scope.gi = function(albumId, imageId, imgTagId) 
-		    {
-		    	$http.get('/imagesbase64/' + albumId + '/' + imageId)
-		    		.then(function(response)
-		    		{
-		    			document.getElementById(imgTagId).src = 'data:image/jpeg;base64,' + response.data;
-		       		});
-		    };
-		    $scope.gti = function(albumId, imageId, imgTagId) 
-		    {
-		    	$http.get('/imagesbase64/thumbnails/' + albumId + '/' + imageId)
-		    		.then(function(response)
-		    		{
-		    			document.getElementById(imgTagId).src = 'data:image/jpeg;base64,' + response.data;
-		       		}).catch(function(error) {
-                                      console.error(error);
-                      });
-;
-		    };
-		    $scope.gibg = function(albumId, imageId, sectionTagId) 
-		    {
-		    	$http.get('/imagesbase64/' + albumId + '/' + imageId)
-		    		.then(function(response)
-		    		{
-		    			var section = document.getElementById(sectionTagId);
-		    			section.style.background = "url('data:image/png;base64," + response.data + "')";
-		       		}).catch(function(error) {
-                        console.error(error);
-                    });
-		    };
-		});
-
-	</script>
-</@h.head>

@@ -153,4 +153,15 @@ public class Image implements Comparable<Image> {
 	public Image createRefToDuplicate(Image duplicateImage) {
 		return new Image(duplicateImage, this.imageId, this.path);
 	}
+
+
+	@Override
+	public String toString() {
+		return "Image [imageId=" + imageId + ", albumId=" + albumId + ", name="
+				+ name + ", path=" + path + ", createdDate=" + createdDate
+				+ ", nextId=" + nextId + ", previousId=" + previousId
+				+ ", isVertical=" + isVertical + ", duplicateOfImageId="
+				+ duplicateOfImageId + "]";
+	}
+
 }
