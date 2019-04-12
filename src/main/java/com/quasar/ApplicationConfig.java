@@ -41,12 +41,6 @@ class ApplicationConfig {
   }
   
 //  @Bean
-//  @ConditionalOnMissingBean(ClassPathTldsLoader.class)
-//  public ClassPathTldsLoader classPathTldsLoader(){
-//      return new ClassPathTldsLoader();
-//  }
-
-//  @Bean
   public PlatformTransactionManager transactionManager() {
 
     JpaTransactionManager txManager = new JpaTransactionManager();

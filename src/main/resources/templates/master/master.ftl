@@ -1,4 +1,4 @@
-<#import "../security.tld" as sec><#macro indexmaster page="not-named" title="gallery"><html>
+<#macro indexmaster page="not-named" title="gallery"><html>
 <head>
 <#if page == "picture">
 	<#include "../includes/head_picture.ftl"/>
