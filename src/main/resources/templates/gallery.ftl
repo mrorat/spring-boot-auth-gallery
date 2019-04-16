@@ -1,27 +1,19 @@
 <#import "master/master.ftl" as m>
 <#assign sec=JspTaglibs["http://www.springframework.org/security/tags"]/>
 
-<@m.indexmaster>
+<@m.indexmaster page="album-list">
 
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-    <@sec.authorize access="hasRole('ADMIN')">
-		<a href="/album/refresh">refresh</a>
-	</@sec.authorize>
-	<@sec.authorize access="hasRole('ADMIN')">
-		Only ADMIN can see this<br>
-	</@sec.authorize>
-	<@sec.authorize access="hasRole('USER')">
-		Only USER can see this<br>
-	</@sec.authorize>
-	<@sec.authorize access="hasRole('GUEST')">
-		Only GUEST can see this<br>
-	</@sec.authorize>
+List of albums available for user<br>
+<input type="text" id="myInput" onkeyup="filter()" placeholder="Search for names..">
 
-	List of albums available for user<br>
+<table id="albums">
+  <tr class="header">
+    <th style="width:60%;">Name</th>
+  </tr>
 <#list albums as album>
-		<li><a href="/album/${album.name?html}/${album.albumid}">${album.name} <#if album.date??>${album.date?iso_utc}</#if></a><br/>
+  <tr><td><a href="/album/${album.name?html}/${album.albumid}">${album.name} <#if album.date??>${album.date?iso_utc}</#if></a></td></tr>
 <#else>
     User doesn't have access to any albums
 </#list>
-	</ol>
+</table>
 </@m.indexmaster>

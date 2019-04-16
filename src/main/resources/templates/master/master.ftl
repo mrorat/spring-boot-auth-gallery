@@ -5,6 +5,8 @@
 	<#include "../includes/head_picture.ftl"/>
 <#elseif page == "gallery">
 	<#include "../includes/head_gallery.ftl"/>
+<#elseif page == "album-list">
+	<#include "../includes/head_album_list.ftl"/>
 <#else>
 	<#include "../includes/head.ftl"/>
 </#if>
