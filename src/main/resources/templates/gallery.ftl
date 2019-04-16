@@ -1,9 +1,21 @@
 <#import "master/master.ftl" as m>
+<#assign sec=JspTaglibs["http://www.springframework.org/security/tags"]/>
 
 <@m.indexmaster>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-	<a href="/album/refresh">refresh</a>
+    <@sec.authorize access="hasRole('ADMIN')">
+		<a href="/album/refresh">refresh</a>
+	</@sec.authorize>
+	<@sec.authorize access="hasRole('ADMIN')">
+		Only ADMIN can see this<br>
+	</@sec.authorize>
+	<@sec.authorize access="hasRole('USER')">
+		Only USER can see this<br>
+	</@sec.authorize>
+	<@sec.authorize access="hasRole('GUEST')">
+		Only GUEST can see this<br>
+	</@sec.authorize>
 
 	List of albums available for user<br>
 <#list albums as album>

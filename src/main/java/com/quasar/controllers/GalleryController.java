@@ -212,6 +212,22 @@ public class GalleryController {
 //        return new ModelAndView("album", map);
         return new ModelAndView("gallery_cat_grid", map);
     }
+    
+    @RequestMapping(
+    		path = {"/albumOrder/{albumName}/{albumId}"},
+    		method = {RequestMethod.GET}
+    		)
+    public ModelAndView getOrderedImagesForAlbum(@PathVariable String albumName, @PathVariable String albumId, @RequestParam Optional<String> error) {
+    	Map<String, Object> map = new HashMap<>();
+    	Album album = albumService.getAlbumById(albumId);
+    	Set<Image> imagesForAlbum = imageService.getImagesForUser(albumId);
+    	System.out.printf("get images for album: [%s] %s, images %d%n", album.getAlbumid(), album.getName(), imagesForAlbum.size());
+    	map.put("images", imagesForAlbum);
+    	map.put("albumName", album.getName());
+    	map.put("albumId", album.getAlbumid());
+//        return new ModelAndView("album", map);
+    	return new ModelAndView("gallery_order", map);
+    }
 
     @GetMapping("/picture/{albumId}/{imageId}")
     public ModelAndView showImage(@PathVariable String albumId, @PathVariable String imageId, @RequestParam Optional<String> error) {

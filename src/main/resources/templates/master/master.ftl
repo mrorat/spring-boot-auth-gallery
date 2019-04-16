@@ -1,3 +1,4 @@
+<#assign sec=JspTaglibs["http://www.springframework.org/security/tags"]/>
 <#macro indexmaster page="not-named" title="gallery"><html>
 <head>
 <#if page == "picture">

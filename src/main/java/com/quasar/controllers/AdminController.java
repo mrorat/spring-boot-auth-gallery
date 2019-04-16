@@ -50,7 +50,7 @@ import com.quasar.security.User;
 import com.quasar.service.AlbumService;
 
 @RestController
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/admin")
 public class AdminController {
 
