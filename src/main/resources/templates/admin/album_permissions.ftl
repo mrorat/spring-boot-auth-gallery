@@ -14,11 +14,33 @@
 	        }).fail(function() {
 	            alert('Failed');
 	        });
-	    } 
+	    }
+function filter() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("albumNameFilterInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("albums");
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
     </script>
 <h1>Setting permissions for user: ${userName}</h1>
 List of albums !<br>
-<table class="standard-table" sty>
+<input type="text" id="albumNameFilterInput" onkeyup="filter()" placeholder="Search for names..">
+<table id="albums" class="standard-table" sty>
    <thead>
     <tr>
       <th>Album name</th>

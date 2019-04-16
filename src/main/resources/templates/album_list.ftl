@@ -4,7 +4,7 @@
 <@m.indexmaster page="album-list">
 
 List of albums available for user<br>
-<input type="text" id="myInput" onkeyup="filter()" placeholder="Search for names..">
+<input type="text" id="albumNameFilterInput" onkeyup="filter()" placeholder="Search for names..">
 
 <table id="albums">
   <tr class="header">
