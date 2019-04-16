@@ -172,7 +172,7 @@ public class GalleryController {
         System.out.printf("Loaded %d albums from database", albums.size());
         Map<String, Object> map = new HashMap<>();
         map.put("albums", this.albumManager.getAlbumsForCurrentUser());
-        return new ModelAndView("gallery", map);
+        return new ModelAndView("album_list", map);
     }
 
     @GetMapping("/gallery2")
@@ -209,8 +209,7 @@ public class GalleryController {
         map.put("images", imagesForAlbum);
         map.put("albumName", album.getName());
         map.put("albumId", album.getAlbumid());
-//        return new ModelAndView("album", map);
-        return new ModelAndView("gallery_cat_grid", map);
+        return new ModelAndView("album_grid", map);
     }
     
     @RequestMapping(
@@ -225,7 +224,6 @@ public class GalleryController {
     	map.put("images", imagesForAlbum);
     	map.put("albumName", album.getName());
     	map.put("albumId", album.getAlbumid());
-//        return new ModelAndView("album", map);
     	return new ModelAndView("gallery_order", map);
     }
 
