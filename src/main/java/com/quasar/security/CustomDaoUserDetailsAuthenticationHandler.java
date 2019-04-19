@@ -13,13 +13,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomDaoUserDetailsAuthenticationHandler extends DaoAuthenticationProvider {
 	
-    @Autowired
-    MyPasswordEncoder passwordEncoder;
-    
-    @Autowired
-    UserDetailsService userDetailsService;
+    private final MyPasswordEncoder passwordEncoder;
+    private final UserDetailsService userDetailsService;
+    private final LoginAttemptService loginAttemptService;
 
-    public CustomDaoUserDetailsAuthenticationHandler() {
+    @Autowired
+    public CustomDaoUserDetailsAuthenticationHandler(MyPasswordEncoder passwordEncoder, UserDetailsService userDetailsService, LoginAttemptService loginAttemptService) {
+    	this.passwordEncoder = passwordEncoder;
+    	this.userDetailsService = userDetailsService;
+    	this.loginAttemptService = loginAttemptService;
     }
 
     @PostConstruct
@@ -32,6 +34,14 @@ public class CustomDaoUserDetailsAuthenticationHandler extends DaoAuthentication
             this.logger.debug("Authentication failed: no credentials provided");
             throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         } else {
+            
+            // check if user is blocked
+            if (loginAttemptService.isBlocked(userDetails.getUsername())) {
+            	this.logger.warn("Authentication failed: user is blocked due to too many failed logins");
+            	throw new BadCredentialsException("Authentication failed: user is blocked due to too many failed logins");
+            }
+            
+            // password check
             String presentedPassword = authentication.getCredentials().toString();
             if (!this.passwordEncoder.matches(userDetails.getPassword(), presentedPassword)) {
                 this.logger.debug("Authentication failed: password does not match stored value");

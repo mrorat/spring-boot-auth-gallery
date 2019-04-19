@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.Version;
+
 @Component
 public class ClassPathTldsLoader {
 	private static final String SECURITY_TLD = "/META-INF/security.tld";
@@ -30,5 +33,6 @@ public class ClassPathTldsLoader {
     @PostConstruct
     public void loadClassPathTlds() {
         freeMarkerConfigurer.getTaglibFactory().setClasspathTlds(classPathTlds);
+        freeMarkerConfigurer.getTaglibFactory().setObjectWrapper(new DefaultObjectWrapper(new Version("2.3.21")));
     }
 }

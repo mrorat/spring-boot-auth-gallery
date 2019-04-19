@@ -7,9 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class MyPasswordEncoder implements PasswordEncoder {
 
-    public MyPasswordEncoder() {
-    }
-    
     public static void main(String[] args) {
     	System.out.println(new MyPasswordEncoder().encode("test"));
     }
@@ -27,7 +24,7 @@ public class MyPasswordEncoder implements PasswordEncoder {
             password_verified = BCrypt.checkpw((String) rawPassword, (String)encodedPassword);
             return password_verified;
         } else {
-            throw new IllegalArgumentException("Invalid hash provided for comparison");
+            return false;
         }
 	}
 }
