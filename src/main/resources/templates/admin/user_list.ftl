@@ -30,7 +30,7 @@ List of users !  <a href="/admin/user<#if withDeleted>">without deleted<#else>?w
   <tbody>
 <#list users as user>
 <tr>
-    <td><a href="/user/${user.ID}">${user.username}</a></td>
+    <td><a href="user/profile/${user.ID}">${user.username}</a></td>
 	<td>${user.enabled?c}</td>
 	<td><#list user.authorities as auth>${auth}<br/><#else>NONE</#list></td>
     <td><a href="/admin/${user.ID}/albumPermissions">modify</a></td>

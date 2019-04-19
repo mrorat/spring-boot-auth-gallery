@@ -135,14 +135,12 @@ public class User implements UserDetails {
     }
 
     void setRoles(ROLES... roles) {
-        ROLES[] var2 = roles;
-        int var3 = roles.length;
+        ROLES[] rolesArray = roles;
 
-        for(int var4 = 0; var4 < var3; ++var4) {
-            ROLES role = var2[var4];
+        for(int i = 0; i < roles.length; ++i) {
+            ROLES role = rolesArray[i];
             this.roles.add(new Role(role));
         }
-
     }
 
     public String getID() {
@@ -158,5 +156,13 @@ public class User implements UserDetails {
 	public void markAsDeleted() {
 		this.deletedDate = new Date();
 		this.isDeleted = userid;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public Date getDeletedDate() {
+		return deletedDate;
 	}
 }

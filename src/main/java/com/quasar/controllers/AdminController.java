@@ -36,6 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.quasar.controllers.dto.AlbumWithPermissions;
+import com.quasar.controllers.dto.UserSafeDTO;
 import com.quasar.dao.PermissionsRepository;
 import com.quasar.dao.RoleRepository;
 import com.quasar.dao.UserRepository;
@@ -216,10 +217,6 @@ public class AdminController {
 	
 	@PostMapping(value="/user", consumes={"application/x-www-form-urlencoded"})
     public RedirectView submit(@Valid @ModelAttribute("user") UserDTO userDTO, @ModelAttribute("role") String role, BindingResult result) {
-//        if (result.hasErrors()) {
-//            return "error";
-//        }
-        
         Role roleFromDb = roleRepository.findByName(role);
         
         User user = new User(Collections.singleton(roleFromDb));
@@ -228,10 +225,27 @@ public class AdminController {
         user.setEnabled(true);
         User savedUser = userRepository.save(user);
         
-        Map<String, Object> model = new HashMap<>();
-        model.put("user", savedUser);
-        return new RedirectView("/user-profile/");
-    }	
+        return new RedirectView("/admin/user/profile/" + savedUser.getID());
+    }
+	
+	@GetMapping(value = "/user/profile/{userid}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ModelAndView getSomeUserProfilePage(@RequestParam Optional<String> error, @PathVariable(name="userid") String userid)
+	{
+		Map<String, Object> map = new HashMap<>();
+		User user = userRepository.findByUserid(userid);
+		if (user != null) {
+			Set<Album> albums = albumManager.getAlbumsForUser(userid);
+			map.put("albums", albums);
+			map.put("access_type", "admin");
+			map.put("user", new UserSafeDTO(user));
+			
+		} else {
+			return new ModelAndView("error/404");
+		}
+		
+		return new ModelAndView("user/profile", map);
+	}
 	
 	@DeleteMapping(value="/xxx/{userId}", consumes="application/json")
     public @ResponseBody void submit(@PathVariable String userId, @RequestBody String x) {

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
+import com.quasar.controllers.dto.UserSafeDTO;
 import com.quasar.dao.AlbumRepository;
 import com.quasar.dao.UserRepository;
 import com.quasar.dto.PasswordDTO;
@@ -40,19 +41,18 @@ public class ProfileController
 	public ModelAndView getUserProfilePage(@RequestParam Optional<String> error)
 	{
 		Map<String, Object> map = new HashMap<>();
-		List<Album> albums = (List<Album>) albumRepository.findAll();
 		
-		map.put("albums", albums);
-		return new ModelAndView("user/profile", map);
-	}
-	
-	@GetMapping(value = "/profile/{userid}")
-	public ModelAndView getSomeUserProfilePage(@RequestParam Optional<String> error, @RequestParam(name="userid") String userid)
-	{
-		Map<String, Object> map = new HashMap<>();
 		List<Album> albums = (List<Album>) albumRepository.findAll();
-		
 		map.put("albums", albums);
+
+		if (SecurityContextHolder.getContext().getAuthentication() != null)
+		{
+			UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			if (userDetails != null) {
+				User currentUser = userRepository.findByUsername(userDetails.getUsername());
+				map.put("user", new UserSafeDTO(currentUser));
+			}
+		}
 		return new ModelAndView("user/profile", map);
 	}
 	
@@ -74,8 +74,8 @@ public class ProfileController
         User savedUser = userRepository.save(user);
         
         Map<String, Object> model = new HashMap<>();
-        model.put("user", savedUser);
-        return new RedirectView("/user/profile");
+        model.put("user", new UserSafeDTO(savedUser));
+        return new RedirectView("/user/profile/" + savedUser.getID());
     }
 
 }
