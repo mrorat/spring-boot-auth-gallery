@@ -41,6 +41,7 @@ import com.quasar.dao.PermissionsRepository;
 import com.quasar.dao.RoleRepository;
 import com.quasar.dao.UserRepository;
 import com.quasar.dto.AlbumNameChangeRequest;
+import com.quasar.dto.PasswordDTO;
 import com.quasar.dto.UserDTO;
 import com.quasar.managers.AlbumManager;
 import com.quasar.model.Album;
@@ -129,6 +130,32 @@ public class AdminController {
 		return new ModelAndView("admin/album_permissions", map);
 	}
 	
+	@GetMapping("/{userId}/passwordChange")
+	public ModelAndView getPasswordChangeForm(@PathVariable String userId) {
+		Optional<User> user = userRepository.findById(userId);
+		if (!user.isPresent()) {
+			return new ModelAndView("error/404");
+		}
+		Map<String, Object> map = new HashMap<>();
+		
+		map.put("userId", userId);
+		map.put("userName", user.get().getUsername());
+		map.put("password", new PasswordDTO());
+		
+		return new ModelAndView("admin/password_change", map);
+	}
+	
+	@PostMapping(value="/user/{userId}/passwordChange", consumes={"application/x-www-form-urlencoded"})
+    public RedirectView userPasswordChangeSubmit(@PathVariable String userId, @Valid @ModelAttribute("password") PasswordDTO passwordDTO, BindingResult result) {
+        
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+        	user.get().setPassword(passwordDTO.getPassword());
+        	
+        	User savedUser = userRepository.save(user.get());
+        	return new RedirectView("/admin/user/profile/" + savedUser.getID());
+        } else return new RedirectView("error/404");        
+    }
 	
 	@RequestMapping(path="/changeAlbumName/{albumId}", 
 		method = RequestMethod.POST)
