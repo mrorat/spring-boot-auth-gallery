@@ -124,7 +124,6 @@ public class FileHandler {
                     finput.close();
                 }
             }
-
         }
 
         System.out.println("Execution time [getFileContentAsBase64Thumbnail]: " + new Long(System.currentTimeMillis()-start).toString());
@@ -136,7 +135,7 @@ public class FileHandler {
             String thumbnailFileName = this.getPathForThumbnailImage(file);
             File thumbnailFile = new File(thumbnailFileName);
             if (!thumbnailFile.exists() || thumbnailFile.length() == 0) {
-                System.out.println(Instant.now() + " Creating thumbnail file for: " + file.getPath());
+                System.out.println(Instant.now() + "Creating thumbnail file for: " + file.getPath());
                 FileImageOutputStream output = null;
 
                 try {
@@ -149,7 +148,6 @@ public class FileHandler {
                     if (output != null) {
                         output.close();
                     }
-
                 }
             } else {
                 System.out.println(Instant.now() + " Thumbnail file for: " + file.getPath() + " already exists");
