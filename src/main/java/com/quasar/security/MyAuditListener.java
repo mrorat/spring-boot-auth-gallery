@@ -26,7 +26,7 @@ public class MyAuditListener {
 				loginAttemptService.loginSucceeded(auditEvent.getPrincipal());
 				break;
 			case "AUTHENTICATION_FAILURE":
-				
+				LOG.warn("type={}, principal={}, data={}", auditEvent.getType(), auditEvent.getPrincipal(), auditEvent.getData());
 				break;
 			case "AUTHORIZATION_FAILURE":
 				LOG.warn("type={}, principal={}, data={}", auditEvent.getType(), auditEvent.getPrincipal(), auditEvent.getData());

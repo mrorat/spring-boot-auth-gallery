@@ -42,12 +42,11 @@ public class Album implements Comparable<Album> {
     @Transient
     private Map<String, Image> images = new HashMap<>();
 
-    public Album() {
-    }
-
+    public Album() {}
+    
     public Album(File directory, List<Image> images) {
         this.albumid = UUID.randomUUID().toString();
-        this.name = directory.getName().replace("_", "-").replace("[", "(").replace("]", ")");
+        this.name = convertDirectoryNameToAlbumName(directory.getName());
         this.path = directory.getPath();
         Iterator<Image> var3 = images.iterator();
 
@@ -57,6 +56,10 @@ public class Album implements Comparable<Album> {
         }
 
         this.updateCreatedDate();
+    }
+    
+    public static String convertDirectoryNameToAlbumName(String directoryName) {
+        return directoryName.replace("_", "-").replace("[", "(").replace("]", ")");
     }
 
 //    private boolean isWhitespaceOrSimilar(char charAt) {
@@ -96,7 +99,6 @@ public class Album implements Comparable<Album> {
                 }
             }
         }
-
     }
 
     public String getAlbumid() {

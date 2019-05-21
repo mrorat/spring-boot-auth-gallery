@@ -503,7 +503,7 @@
 		padding: 0.75em 1em;
 	}
 
-	input[type="checkbox"],
+/* 	input[type="checkbox"],
 	input[type="radio"] {
 		-moz-appearance: none;
 		-webkit-appearance: none;
@@ -557,7 +557,7 @@
 		input[type="checkbox"]:checked + label:before,
 		input[type="radio"]:checked + label:before {
 			content: '\f00c';
-		}
+		} */
 
 	input[type="checkbox"] + label:before {
 		border-radius: 4px;
@@ -1059,7 +1059,7 @@
 
 		}
 
-		@media screen and (max-width: 980px) {
+		@media screen and (max-width: 480px) {
 
 			#preview.vertical .inner {
 				-moz-flex-wrap: wrap;
@@ -1070,7 +1070,7 @@
 
 		}
 
-		@media screen and (max-width: 736px) {
+		@media screen and (max-width: 436px) {
 
 			#preview .content {
 				padding: 2em;
@@ -1244,7 +1244,13 @@
 }
 
 /* Add media queries for responsiveness - when the screen is 500px wide or less, stack the links on top of each other */
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 480px) {
+  .topnav a:not(:first-child) {
+    display: none;}
+  .topnav a.icon {
+    float: right;
+    display: block;
+  }	
   .header a {
     float: none;
     display: block;
@@ -1272,9 +1278,8 @@
 		-webkit-transition: bottom 0.2s ease;
 		-ms-transition: bottom 0.2s ease;
 		transition: bottom 0.2s ease;
-		position: fixed;
-		bottom: -20em;
-		color: #FFF;
+		bottom: 0em;
+		color: #000;
 		left: 0;
 		width: 100%;
 		text-align: center;
@@ -1361,7 +1366,7 @@
 				padding-bottom: 1em;
 			}
 
-		@media screen and (max-width: 980px) {
+		@media screen and (max-width: 480px) {
 
 			#footer {
 				position: relative;
@@ -1403,4 +1408,32 @@
     content: "";
     clear: both;
     display: table;
+}
+.topnav {
+  overflow: hidden;
+  background-color: #333;
+}
+
+.topnav a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.topnav .icon {
+  display: none;
 }

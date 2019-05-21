@@ -26,9 +26,7 @@ import javax.imageio.stream.FileImageOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Metadata;
 import com.quasar.model.Album;
 import com.quasar.model.Image;
 import com.quasar.service.ImageService;
@@ -64,9 +62,9 @@ public class FileHandler {
         String filePath = getImageOrThrow(imageId).getPath();
         File f = new File(filePath);
         InputStream finput = new FileInputStream(f);
-        Throwable var6 = null;
+        Throwable throwable = null;
 
-        String var9;
+        String base64image;
         try {
             byte[] imageBytes = new byte[(int)Files.size(f.toPath())];
             int bytesRead = finput.read(imageBytes, 0, imageBytes.length);
@@ -74,26 +72,25 @@ public class FileHandler {
                 System.out.printf("ERROR: File [%s] was read and it's size [%d] did not match bytes read [%d]%n", f.getPath(), imageBytes.length, bytesRead);
             }
 
-            var9 = Base64.getEncoder().encodeToString(imageBytes);
-        } catch (Throwable var18) {
-            var6 = var18;
-            throw var18;
+            base64image = Base64.getEncoder().encodeToString(imageBytes);
+        } catch (Throwable ex) {
+            throwable = ex;
+            throw ex;
         } finally {
             if (finput != null) {
-                if (var6 != null) {
+                if (throwable != null) {
                     try {
                         finput.close();
                     } catch (Throwable var17) {
-                        var6.addSuppressed(var17);
+                        throwable.addSuppressed(var17);
                     }
                 } else {
                     finput.close();
                 }
             }
-
         }
 
-        return var9;
+        return base64image;
     }
 
     public String getFileContentAsBase64Thumbnail(String albumId, String imageId) throws IOException {
@@ -162,20 +159,44 @@ public class FileHandler {
         return Files.readAttributes(file.toPath(), BasicFileAttributes.class);
     }
 
-    private void writeToFile(File originalFile, FileImageOutputStream outputStream) throws IOException, ImageProcessingException {
-        BufferedImage originalImage = ImageIO.read(originalFile);
-        Metadata metadata = ImageMetadataReader.readMetadata(originalFile);
-        System.out.println(metadata);
+    private void writeToFile(File fileToWriteTo, FileImageOutputStream outputStream) throws IOException, ImageProcessingException {
+        BufferedImage originalImage = ImageIO.read(fileToWriteTo);
+//        Metadata metadata = ImageMetadataReader.readMetadata(fileToWriteTo);
         ImageWriter writer = (ImageWriter)ImageIO.getImageWritersByFormatName("jpeg").next();
-        writer.setOutput(outputStream);
         this.iwp = writer.getDefaultWriteParam();
         this.iwp.setCompressionMode(2);
         this.iwp.setCompressionQuality(0.25F);
+        writer.setOutput(outputStream);
         IIOImage image = new IIOImage(originalImage, null, (IIOMetadata)null);
-        System.out.println(image.getMetadata());
         writer.write(image.getMetadata(), image, this.iwp);
-        System.out.println(Instant.now() + " Creating thumbnail file for: " + originalFile.getPath() + ", with size: " + image.getRenderedImage().getData().getDataBuffer().getSize());
+        System.out.println(Instant.now() + " Creating thumbnail file for: " + fileToWriteTo.getPath() + ", with size: " + fileToWriteTo.length());
     }
+    
+//    int THUMBNAIL_IMG_WIDTH = 800;
+//    int THUMBNAIL_IMG_HEIGHT = 800;
+//    private void resizeImageAndSave(File originalFile, FileImageOutputStream outputStream) throws IOException {
+//    	BufferedImage originalImage = ImageIO.read(originalFile);
+//    	BufferedImage resizedImage = null;
+//    	int type = originalImage.getType() == 0? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
+//    	
+//    	int finalWidth = 0;
+//    	int finalHeight = 0;
+//    	if (Math.max(originalImage.getWidth(), originalImage.getHeight()) == originalImage.getWidth()) {
+//    		float ratio = THUMBNAIL_IMG_WIDTH / originalImage.getWidth();
+//    		resizedImage = new BufferedImage(THUMBNAIL_IMG_WIDTH, (int)(originalImage.getHeight() * ratio), type);
+//    	} else {
+//    		float ratio = THUMBNAIL_IMG_WIDTH / originalImage.getWidth();    		
+//    		resizedImage = new BufferedImage((int)(originalImage.getWidth() * ratio), THUMBNAIL_IMG_WIDTH, type);
+//    	}
+//    	
+//    	Graphics2D graphics = resizedImage.createGraphics();
+//    	resizedImage.getGraphics().drawImage(originalImage.getScaledInstance(resizedImage.getWidth(), resizedImage.getHeight(), java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+//
+//    	ImageIO.write(resizedImage, type, outputStream);
+//    	outputStream.close();
+//
+//    	graphics.dispose();
+//    }
 
     private String getPathForThumbnailImage(File file) {
         return file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - file.getName().length()) + "thumbnail" + File.separator + file.getName();
@@ -192,7 +213,6 @@ public class FileHandler {
                 System.out.printf("ERROR: Failed to create thumbnail directory created [%s]%n", thumbnailDirectory.getPath());
             }
         }
-
     }
 
     public void createUUIDFile(Album album) {
@@ -200,31 +220,29 @@ public class FileHandler {
 
         try {
             FileWriter fw = new FileWriter(uuidFile);
-            Throwable var4 = null;
+            Throwable throwable = null;
 
             try {
                 fw.write(album.getAlbumid());
                 fw.flush();
-            } catch (Throwable var14) {
-                var4 = var14;
-                throw var14;
+            } catch (Throwable ex) {
+                throwable = ex;
+                throw ex;
             } finally {
                 if (fw != null) {
-                    if (var4 != null) {
+                    if (throwable != null) {
                         try {
                             fw.close();
-                        } catch (Throwable var13) {
-                            var4.addSuppressed(var13);
+                        } catch (Throwable ex) {
+                            throwable.addSuppressed(ex);
                         }
                     } else {
                         fw.close();
                     }
                 }
-
             }
-        } catch (IOException var16) {
-            var16.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
-
     }
 }

@@ -14,7 +14,7 @@
 <body>
 <#include "../includes/header.ftl"/>
 <#nested/>
-</body>
 <#include "../includes/footer.ftl"/>
+</body>
 </html>
 </#macro>

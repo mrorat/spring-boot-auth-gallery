@@ -37,6 +37,11 @@ public class HelloWorldController {
 	      }
 	      return "welcome";
 	   }
+	
+	@GetMapping("/welcome")
+	public ModelAndView welcomePage() {
+	    return new ModelAndView("welcome");
+	}
 
 	@RequestMapping(value = "/Access_Denied", method = RequestMethod.GET)
 	public String accessDeniedPage(ModelMap model) {

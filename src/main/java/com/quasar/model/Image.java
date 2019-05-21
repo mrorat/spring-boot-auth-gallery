@@ -110,7 +110,10 @@ public class Image implements Comparable<Image> {
     }
 
     public Date getDateTaken() {
-        return new Date(this.createdDate.getTime());
+        if (this.createdDate != null)
+            return new Date(this.createdDate.getTime());
+        else
+            return new Date();
     }
 
     public String getNextId() {
