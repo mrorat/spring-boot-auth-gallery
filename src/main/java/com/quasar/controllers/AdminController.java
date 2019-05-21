@@ -297,7 +297,7 @@ public class AdminController {
         user.setEnabled(true);
         User savedUser = userRepository.save(user);
         
-        return new RedirectView("/admin/user/profile/" + savedUser.getID());
+        return new RedirectView("/admin/user/" + savedUser.getID() + "/profile");
     }
 	
 	@GetMapping(value = "/user/{userid}/profile")

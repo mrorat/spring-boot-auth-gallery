@@ -48,7 +48,6 @@ public class User implements UserDetails {
     @Column(name = "deleted_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedDate;
-    @Transient
     @Column(name = "is_deleted")
     private String isDeleted;
     
