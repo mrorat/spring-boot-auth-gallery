@@ -70,4 +70,6 @@ public class AlbumServiceImpl implements AlbumService {
 	private String getCurrentUserId() {
 		return ((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getID();
 	}
+	
+	public void evictCachedAlbums(){}
 }

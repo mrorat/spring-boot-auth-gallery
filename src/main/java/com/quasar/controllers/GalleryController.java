@@ -1,11 +1,8 @@
 package com.quasar.controllers;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -23,12 +20,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.quasar.GalleryApplication;
-import com.quasar.files.FileHandler;
 import com.quasar.managers.AlbumManager;
 import com.quasar.model.Album;
 import com.quasar.model.Image;
-import com.quasar.repository.Repository;
 import com.quasar.service.AlbumService;
 import com.quasar.service.ImageService;
 
@@ -45,10 +39,6 @@ public class GalleryController {
     @Autowired
     private AlbumManager albumManager;
     
-    @Autowired
-    private FileHandler fileHandler;
-    
-    
     String homeDirectory = "c:\\__FOTO\\__TEST";
 
     @Autowired
@@ -56,104 +46,6 @@ public class GalleryController {
 
     @Autowired
     public GalleryController() {
-    }
-
-    @GetMapping("/album/refresh")
-    public ModelAndView getRefreshAlbums(@RequestParam Optional<String> error) {
-        albums.clear();
-        File galleryHomeDirectory = new File(GalleryApplication.getGalleryHomeDirectory() == null ? homeDirectory : GalleryApplication.getGalleryHomeDirectory());
-        File[] albumFileList = galleryHomeDirectory.listFiles((filex) -> {
-            return filex.isDirectory();
-        });
-        if (albumFileList != null) {
-
-        	Map<String, String> postponedImageDuplicateUpdates = new HashMap<>();
-            for(int j = 0; j < albumFileList.length; ++j) {
-                File directory = albumFileList[j];
-                List<Image> images = new ArrayList<>();
-                File[] imageFileList = directory.listFiles((filex) -> {
-                    return !filex.isDirectory() && filex.toString().toLowerCase().endsWith("jpg");
-                });
-                Album album = this.createUUIDFileIfDoesntExistAndReturnAlbum(directory, images);
-                this.fileHandler.createThumbnailDirectory(directory);
-                if (imageFileList != null) {
-                    System.out.printf("Processing directory %s, image qty: %d%n", directory.getName(), imageFileList.length);
-
-                    albumService.save(album);
-                    for(int i = 0; i < imageFileList.length; ++i) {
-                        File file = imageFileList[i];
-                        Image image = new Image(file, album.getAlbumid().toString(), this.fileHandler);
-                        
-                        /* at this point we should know if this image already exist in our database
-                         * since we generate image id from the file CRC */
-                        
-                        Optional<Image> imageFromDbOptional = imageService.getImageById(image.getId());
-                        if (imageFromDbOptional.isPresent() && !imageFromDbOptional.get().getPath().equals(image.getPath())) {
-                        	image = imageFromDbOptional.get().createRefToDuplicate(image);
-                        }
-                        
-                        images.add(image);
-                        this.fileHandler.createThumbnail(file);
-                        if (images.size() > 1) {
-                            Image previousImage = (Image)images.get(images.size() - 2);
-                            previousImage.setNextId(image.getId());
-                            Optional<Image> prevImageFromDbOptional = imageService.getImageById(previousImage.getId());
-                            if (prevImageFromDbOptional.isPresent()) {
-                            	Image prevImageFromDb = prevImageFromDbOptional.get();
-                            	prevImageFromDb.setNextId(image.getId());
-                            	imageService.save(prevImageFromDb);
-                            	image.setPreviousId(previousImage.getId());
-                            }
-                        }
-                        try {
-                        	imageService.save(image);
-                        } catch (Exception ex) {
-                        	LOGGER.warn("Failed to save image: " + image.toString());
-							postponedImageDuplicateUpdates.put(image.getId(), image.getDuplicateOfImageId());
-							image.setDuplicateOfImageId(null);
-							imageService.save(image);
-                        }
-                    }
-                }
-
-                if (images.size() > 1) {
-                    ((Image)images.get(0)).setPreviousId(((Image)images.get(images.size() - 1)).getId());
-                    ((Image)images.get(images.size() - 1)).setNextId(((Image)images.get(0)).getId());
-                }
-
-                album.setImages(images);
-                System.out.printf("Album %s [ID: %s] created with %d images%n", album.getName(), album.getAlbumid(), images.size());
-                albums.add(album);
-            }
-            
-            for (String imageId : postponedImageDuplicateUpdates.keySet()) {
-            	Optional<Image> i = imageService.getImageById(imageId);
-            	if (i.isPresent()) {
-            		i.get().setDuplicateOfImageId(postponedImageDuplicateUpdates.get(imageId));
-            		imageService.save(i.get());
-            	}
-            }
-        }
-
-        Repository.setAlbums(albums);
-        return new ModelAndView("redirect:/gallery");
-    }
-
-    private Album createUUIDFileIfDoesntExistAndReturnAlbum(File directory, List<Image> images) {
-        File uuidFile = new File(directory + File.separator + "uuid");
-        Album album = new Album(directory, images);
-        if (uuidFile.exists()) {
-            try {
-                album.setId((String)Files.readAllLines(uuidFile.toPath()).get(0));
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-
-            return album;
-        } else {
-            this.fileHandler.createUUIDFile(album);
-            return this.albumService.save(album);
-        }
     }
 
     @GetMapping("/save")

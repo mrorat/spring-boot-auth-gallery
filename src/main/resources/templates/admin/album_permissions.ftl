@@ -15,9 +15,9 @@
 	            alert('Failed');
 	        });
 	    }
-function filter() {
+function filter(accessType = 'all') {
   // Declare variables
-  var input, filter, table, tr, td, i, txtValue;
+  var input, filter, table, tr, td, i, txtValue, accessTd, input;
   input = document.getElementById("albumNameFilterInput");
   filter = input.value.toUpperCase();
   table = document.getElementById("albums");
@@ -30,16 +30,28 @@ function filter() {
       txtValue = td.textContent || td.innerText;
       if (txtValue.toUpperCase().indexOf(filter) > -1) {
         tr[i].style.display = "";
+        if (accessType != 'all') {
+          accessTd = tr[i].getElementsByTagName("td")[1];
+          if (accessType == 'hasAccess' && !accessTd.childNodes[0].childNodes[0].checked) {
+            tr[i].style.display = "none";
+          } else if (accessType == 'noAccess' && accessTd.childNodes[0].childNodes[0].checked) {
+            tr[i].style.display = "none";
+          }
+        }
       } else {
         tr[i].style.display = "none";
       }
     }
   }
 }
-    </script>
+</script>
 <h1>Setting permissions for user: ${userName}</h1>
 List of albums !<br>
+<form action="/admin/${userId}/albumPermissions">
 <input type="text" id="albumNameFilterInput" onkeyup="filter()" placeholder="Search for names..">
+  <input type="radio" name="accessType" onChange="filter('all')" value="all" <#if accessType="all">checked="checked"</#if>> all<br>
+  <input type="radio" name="accessType" onChange="filter('hasAccess')" value="hasAccess" <#if accessType="hasAccess">checked="checked"</#if>> has access<br>
+  <input type="radio" name="accessType" onChange="filter('noAccess')" value="noAccess" <#if accessType="noAccess">checked="checked"</#if>> no access<br>
 <table id="albums" class="standard-table" sty>
    <thead>
     <tr>

@@ -6,7 +6,7 @@
 	        
 	        $.ajax({ 
 	            url: '/admin/xxx/'+ userId,
-	            headers : { '${_csrf.parameterName}' : '${_csrf.token}', 'content-type': 'application/json' },
+	            headers : { '${_csrf.parameterName}' : '${_csrf.token}', 'Content-Type': 'application/json' },
 	            data: { '${_csrf.parameterName}' : '${_csrf.token}' },
 	            type: 'DELETE'
 	        }).done(function(responseData) {
@@ -16,6 +16,7 @@
 	        });
 	    } 
     </script>
+    <#include "admin_menu.ftl">
 List of users !  <a href="/admin/user<#if withDeleted>">without deleted<#else>?withDeleted=true">with deleted</#if></a><br>
 <table class="standard-table" sty>  <thead>
     <tr>
@@ -30,11 +31,11 @@ List of users !  <a href="/admin/user<#if withDeleted>">without deleted<#else>?w
   <tbody>
 <#list users as user>
 <tr>
-    <td><a href="user/profile/${user.ID}">${user.username}</a></td>
+    <td><a href="user/${user.ID}/profile">${user.username}</a></td>
 	<td>${user.enabled?c}</td>
 	<td><#list user.authorities as auth>${auth}<br/><#else>NONE</#list></td>
     <td><a href="/admin/${user.ID}/albumPermissions">modify</a></td>
-    <td><a href="/admin/${user.ID}/passwordChange">reset password</a></td>
+    <td><a href="/admin/user/${user.ID}/passwordChange">reset password</a></td>
     <td><#if user.deleted?? && !user.deleted><img onclick="javascript: deleteUser('${user.ID}')" style="width:2em; height:auto;" src="../img/trash_red.png"/><#else></#if></td>
 </tr>
 </#list>

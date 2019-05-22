@@ -32,4 +32,14 @@ public class UserServiceImpl implements UserService {
 	public User getUserById(String userId) {
 		return this.userDAO.findByUserid(userId);
 	}
+
+    @Override
+    public boolean deleteUser(String userId) {
+        User userToDelete = getUserById(userId);
+        if (userToDelete == null || userToDelete.isDeleted())
+            return false;
+        userToDelete.markAsDeleted();
+        userDAO.save(userToDelete);
+        return true;
+    }
 }

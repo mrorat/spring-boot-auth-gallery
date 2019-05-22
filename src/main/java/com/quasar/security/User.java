@@ -20,6 +20,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.WhereJoinTable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,7 +48,6 @@ public class User implements UserDetails {
     @Column(name = "deleted_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedDate;
-    @Transient
     @Column(name = "is_deleted")
     private String isDeleted;
     
@@ -57,13 +57,10 @@ public class User implements UserDetails {
     )
     @JoinTable(
         name = "users_roles",
-        joinColumns = {@JoinColumn(
-    name = "userid"
-)},
-        inverseJoinColumns = {@JoinColumn(
-    name = "roleid"
-)}
+        joinColumns = {@JoinColumn(name = "userid")},
+        inverseJoinColumns = {@JoinColumn(name = "roleid")}
     )
+    @WhereJoinTable(clause="deleted_date IS NULL")
     private Set<Role> roles;
 
     public User() {

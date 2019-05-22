@@ -10,4 +10,6 @@ public interface UserService {
     Iterable<User> getAllAdminUsers();
 
 	User getUserById(String userId);
+	
+	boolean deleteUser(String userId);
 }
