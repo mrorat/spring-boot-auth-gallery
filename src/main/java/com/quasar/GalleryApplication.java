@@ -15,12 +15,12 @@ public class GalleryApplication {
 
     public static void main(String[] args) throws IOException {
         if (args.length > 0) {
-            File dir = new File(args[1]);
+            File dir = new File(args[0]);
             if (!dir.exists() || !dir.isDirectory()) {
-                throw new IOException("Specified location [" + args[1] + "] does not exist or is not a directory");
+                throw new IOException("Specified location [" + args[0] + "] does not exist or is not a directory");
             }
 
-            galleryHomeDirectory = args[1];
+            galleryHomeDirectory = args[0];
         }
 
         SpringApplication.run(GalleryApplication.class, args);

@@ -16,8 +16,8 @@ import javax.persistence.TemporalType;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import com.quasar.TestCRC;
 import com.quasar.files.FileHandler;
+import com.quasar.util.CrcUtil;
 
 @Entity
 @Table(
@@ -74,7 +74,7 @@ public class Image implements Comparable<Image> {
         }
 
         try {
-			this.imageId = DigestUtils.md5Hex(String.valueOf(TestCRC.checksumMappedFile(path)));
+			this.imageId = DigestUtils.md5Hex(String.valueOf(CrcUtil.getFileCyclicRedundancyCheck(path)));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
