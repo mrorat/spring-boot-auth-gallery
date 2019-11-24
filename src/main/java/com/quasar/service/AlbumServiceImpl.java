@@ -2,6 +2,7 @@ package com.quasar.service;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -30,7 +31,7 @@ public class AlbumServiceImpl implements AlbumService {
         return this.albumDAO.save(album);
     }
 
-    public Album getAlbumById(String albumId) {
+    public Optional<Album> getAlbumById(String albumId) {
     	User user = userService.getUserById(getCurrentUserId());
     	if (user.hasRole(ROLES.ROLE_ADMIN))
     		return this.albumDAO.findByAlbumid(albumId);
@@ -51,14 +52,15 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     public void renameAlbum(String id, String newName) {
-        Album album = this.getAlbumById(id);
-        File oldNameAlbum = new File(album.getPath());
-        File newNameAlbum = new File(album.getPath() + "_renamed");
-        oldNameAlbum.renameTo(newNameAlbum);
-        if (newNameAlbum.exists()) {
-            album.rename(newNameAlbum);
+        Optional<Album> album = this.getAlbumById(id);
+        if (album.isPresent()) {
+            File oldNameAlbum = new File(album.get().getPath());
+            File newNameAlbum = new File(album.get().getPath() + "_renamed");
+            oldNameAlbum.renameTo(newNameAlbum);
+            if (newNameAlbum.exists()) {
+                album.get().rename(newNameAlbum);
+            }
         }
-
     }
 
 	@Override

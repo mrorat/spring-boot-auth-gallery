@@ -1,6 +1,8 @@
 package com.quasar.service;
 
 import com.quasar.model.Album;
+
+import java.util.Optional;
 import java.util.SortedSet;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -10,7 +12,7 @@ public interface AlbumService {
     Album save(Album var1);
 
     @Cacheable({"albums"})
-    Album getAlbumById(String var1);
+    Optional<Album> getAlbumById(String var1);
 
     SortedSet<Album> getAlbums();
 

@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -31,7 +33,9 @@ import com.quasar.security.User;;
 @Transactional
 public class GalleryApplicationTests {
 
-	@Autowired
+    private static final Logger LOGGER = LoggerFactory.getLogger(GalleryApplicationTests.class);
+
+    @Autowired
 	private AlbumRepository albumRepository;
 	
 	@Autowired
@@ -45,7 +49,7 @@ public class GalleryApplicationTests {
 //		List<Album> albums = repository.findById("jakiesId");
 //		assertTrue(albums.size() > 0);
 		for (Album album : albumRepository.findAll()) {
-			System.out.println(album.getName());
+		    LOGGER.info(album.getName());
 		}
 		
 	}

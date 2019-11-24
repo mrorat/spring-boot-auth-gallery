@@ -21,11 +21,17 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Entity
 @Table(
     name = "album"
 )
 public class Album implements Comparable<Album> {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(Album.class);
+
     @Id
     @Column(
         length = 36,
@@ -75,7 +81,7 @@ public class Album implements Comparable<Album> {
 //    }
 
     public void setImages(List<Image> images) {
-        System.out.printf("Setting images for Album [name: %s], [id: %s], [image qty: %d]%n", this.getName(), this.getAlbumid(), images.size());
+        LOGGER.info("Setting images for Album [name: %s], [id: %s], [image qty: %d]%n", this.getName(), this.getAlbumid(), images.size());
         Iterator<Image> var2 = images.iterator();
 
         while(var2.hasNext()) {
@@ -107,7 +113,7 @@ public class Album implements Comparable<Album> {
 
     public void setId(String id) {
         this.albumid = id;
-        System.out.printf("Setting id %s for album %s%n", id, this.name);
+        LOGGER.info("Setting id %s for album %s%n", id, this.name);
     }
 
     public String getName() {

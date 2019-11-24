@@ -57,13 +57,10 @@ public class GalleryController {
 
     @GetMapping("/gallery")
     public ModelAndView getAllAlbums(@RequestParam Optional<String> error) {
-//        if (albums.isEmpty()) {
-//            albums = this.albumService.getAlbumsForUser(SecurityContextHolder.getContext().getAuthentication().getName());
-//        }
-
-        System.out.printf("Loaded %d albums from database", albums.size());
+        Set<Album> albumsForCurrentUser = this.albumManager.getAlbumsForCurrentUser();
+        LOGGER.info("Loaded {} albums from database", albumsForCurrentUser.size());
         Map<String, Object> map = new HashMap<>();
-        map.put("albums", this.albumManager.getAlbumsForCurrentUser());
+        map.put("albums", albumsForCurrentUser);
         return new ModelAndView("album_list", map);
     }
 
@@ -95,12 +92,12 @@ public class GalleryController {
     )
     public ModelAndView getImagesForAlbum(@PathVariable String albumName, @PathVariable String albumId, @RequestParam Optional<String> error) {
         Map<String, Object> map = new HashMap<>();
-        Album album = albumService.getAlbumById(albumId);
+        Optional<Album> album = albumService.getAlbumById(albumId);
         Set<Image> imagesForAlbum = imageService.getImagesForUser(albumId);
-        System.out.printf("get images for album: [%s] %s, images %d%n", album.getAlbumid(), album.getName(), imagesForAlbum.size());
+        LOGGER.info("get images for album: [{}] {}, images {}", album.get().getAlbumid(), album.get().getName(), imagesForAlbum.size());
         map.put("images", imagesForAlbum);
-        map.put("albumName", album.getName());
-        map.put("albumId", album.getAlbumid());
+        map.put("albumName", album.get().getName());
+        map.put("albumId", album.get().getAlbumid());
         return new ModelAndView("album_grid", map);
     }
     
@@ -110,20 +107,21 @@ public class GalleryController {
     		)
     public ModelAndView getOrderedImagesForAlbum(@PathVariable String albumName, @PathVariable String albumId, @RequestParam Optional<String> error) {
     	Map<String, Object> map = new HashMap<>();
-    	Album album = albumService.getAlbumById(albumId);
+    	Optional<Album> album = albumService.getAlbumById(albumId);
     	Set<Image> imagesForAlbum = imageService.getImagesForUser(albumId);
-    	System.out.printf("get images for album: [%s] %s, images %d%n", album.getAlbumid(), album.getName(), imagesForAlbum.size());
+    	LOGGER.info("get images for album: [{}] {}, images {}", album.get().getAlbumid(), album.get().getName(), imagesForAlbum.size());
     	map.put("images", imagesForAlbum);
-    	map.put("albumName", album.getName());
-    	map.put("albumId", album.getAlbumid());
+    	map.put("albumName", album.get().getName());
+    	map.put("albumId", album.get().getAlbumid());
     	return new ModelAndView("gallery_order", map);
     }
 
     @GetMapping("/picture/{albumId}/{imageId}")
     public ModelAndView showImage(@PathVariable String albumId, @PathVariable String imageId, @RequestParam Optional<String> error) {
+        LOGGER.debug("Image requested: " + imageId + " [from album: " + albumId + "]");
         Map<String, Object> map = new HashMap<>();
-        System.out.println("get images for albumId: " + albumId + ", image: " + imageId);
-        map.put("albumName", albumService.getAlbumById(albumId).getName());
+        LOGGER.info("get images for albumId: " + albumId + ", image: " + imageId);
+        map.put("albumName", albumService.getAlbumById(albumId).get().getName());
         map.put("albumId", albumId);
         map.put("imageId", imageId);
         return new ModelAndView("picture", map);

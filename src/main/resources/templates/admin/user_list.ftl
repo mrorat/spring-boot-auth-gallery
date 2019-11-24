@@ -34,9 +34,15 @@ List of users !  <a href="/admin/user<#if withDeleted>">without deleted<#else>?w
     <td><a href="user/${user.ID}/profile">${user.username}</a></td>
 	<td>${user.enabled?c}</td>
 	<td><#list user.authorities as auth>${auth}<br/><#else>NONE</#list></td>
-    <td><a href="/admin/${user.ID}/albumPermissions">modify</a></td>
-    <td><a href="/admin/user/${user.ID}/passwordChange">reset password</a></td>
-    <td><#if user.deleted?? && !user.deleted><img onclick="javascript: deleteUser('${user.ID}')" style="width:2em; height:auto;" src="../img/trash_red.png"/><#else></#if></td>
+    <#if user.deleted?? && !user.deleted>
+        <td><a href="/admin/${user.ID}/albumPermissions">modify</a></td>
+        <td><a href="/admin/user/${user.ID}/passwordChange">reset password</a></td>
+        <td><img onclick="javascript: deleteUser('${user.ID}')" style="width:2em; height:auto;" src="../img/trash_red.png"/></td>
+    <#else>
+        <td>-</td>
+        <td>-</td>
+        <td>${user.deletedDate}</td>
+    </#if>
 </tr>
 </#list>
 </tbody>

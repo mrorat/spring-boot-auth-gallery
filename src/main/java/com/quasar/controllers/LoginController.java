@@ -2,6 +2,8 @@ package com.quasar.controllers;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,13 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class LoginController
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String getLoginPage(@RequestParam Optional<String> error)
 	{
 		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities())
 		{
-			System.out.println(ga.getAuthority());
+			LOGGER.debug(ga.getAuthority());
 		}
 
 		return "login_form";
@@ -29,6 +32,7 @@ public class LoginController
 	@RequestMapping(value = "/access-denied", method = RequestMethod.GET)
 	public String getAccessDeniedPage(@RequestParam Optional<String> error)
 	{
+	    LOGGER.warn("Access denied...");
 		return "access_denied";
 	}
 	

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -23,17 +22,21 @@ import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.FileImageOutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.drew.imaging.ImageProcessingException;
+import com.quasar.Constants;
 import com.quasar.model.Album;
 import com.quasar.model.Image;
 import com.quasar.service.ImageService;
 
 @Service
 public class FileHandler {
-	
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
 	private ImageService imageService;
 	
     private ExecutorService executor = null;
@@ -58,7 +61,7 @@ public class FileHandler {
     }
 
     public String getFileContentAsBase64(String albumId, String imageId) throws IOException {
-        System.out.println(Instant.now() + " Request to get image id: " + imageId);
+        LOGGER.info("Request to get image id: " + imageId);
         String filePath = getImageOrThrow(imageId).getPath();
         File f = new File(filePath);
         InputStream finput = new FileInputStream(f);
@@ -69,7 +72,7 @@ public class FileHandler {
             byte[] imageBytes = new byte[(int)Files.size(f.toPath())];
             int bytesRead = finput.read(imageBytes, 0, imageBytes.length);
             if (bytesRead != imageBytes.length) {
-                System.out.printf("ERROR: File [%s] was read and it's size [%d] did not match bytes read [%d]%n", f.getPath(), imageBytes.length, bytesRead);
+                LOGGER.info("ERROR: File [{}] was read and it's size [{}] did not match bytes read [{}]%n", f.getPath(), imageBytes.length, bytesRead);
             }
 
             base64image = Base64.getEncoder().encodeToString(imageBytes);
@@ -95,7 +98,7 @@ public class FileHandler {
 
     public String getFileContentAsBase64Thumbnail(String albumId, String imageId) throws IOException {
     	long start = System.currentTimeMillis();
-        System.out.println(Instant.now() + " Request to get thumbnail for image id: " + imageId);
+        LOGGER.info("Request to get thumbnail for image id: " + imageId);
         String filePath = getImageOrThrow(imageId).getThumbnailPath();
         File f = new File(filePath);
         InputStream finput = new FileInputStream(f);
@@ -123,7 +126,7 @@ public class FileHandler {
             }
         }
 
-        System.out.println("Execution time [getFileContentAsBase64Thumbnail]: " + new Long(System.currentTimeMillis()-start).toString());
+        LOGGER.info("Execution time [getFileContentAsBase64Thumbnail]: " + new Long(System.currentTimeMillis()-start).toString());
         return var8;
     }
 
@@ -132,22 +135,22 @@ public class FileHandler {
             String thumbnailFileName = this.getPathForThumbnailImage(file);
             File thumbnailFile = new File(thumbnailFileName);
             if (!thumbnailFile.exists() || thumbnailFile.length() == 0) {
-                System.out.println(Instant.now() + "Creating thumbnail file for: " + file.getPath());
+                LOGGER.info("Creating thumbnail file for: " + file.getPath());
                 FileImageOutputStream output = null;
 
                 try {
                     File outputFile = new File(thumbnailFileName);
                     output = new FileImageOutputStream(outputFile);
                     this.writeToFile(file, output);
-                } catch (Exception var8) {
-                    var8.printStackTrace();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 } finally {
                     if (output != null) {
                         output.close();
                     }
                 }
             } else {
-                System.out.println(Instant.now() + " Thumbnail file for: " + file.getPath() + " already exists");
+                LOGGER.debug("Thumbnail file for: " + file.getPath() + " already exists");
             }
 
             return null;
@@ -169,7 +172,7 @@ public class FileHandler {
         writer.setOutput(outputStream);
         IIOImage image = new IIOImage(originalImage, null, (IIOMetadata)null);
         writer.write(image.getMetadata(), image, this.iwp);
-        System.out.println(Instant.now() + " Creating thumbnail file for: " + fileToWriteTo.getPath() + ", with size: " + fileToWriteTo.length());
+        LOGGER.info("Creating thumbnail file for: " + fileToWriteTo.getPath() + ", with size: " + fileToWriteTo.length());
     }
     
 //    int THUMBNAIL_IMG_WIDTH = 800;
@@ -199,18 +202,19 @@ public class FileHandler {
 //    }
 
     private String getPathForThumbnailImage(File file) {
-        return file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - file.getName().length()) + "thumbnail" + File.separator + file.getName();
+        return file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - file.getName().length()) 
+                + Constants.THUMBNAILS_DIR + File.separator + file.getName();
     }
 
     public void createThumbnailDirectory(File directory) {
-        File thumbnailDirectory = new File(directory.getPath() + File.separator + "thumbnail");
+        File thumbnailDirectory = new File(directory.getPath() + File.separator + Constants.THUMBNAILS_DIR);
         if (!thumbnailDirectory.exists()) {
-            System.out.printf("Creating thumbnail directory [%s]%n", thumbnailDirectory.getName());
+            LOGGER.info("Creating thumbnail directory [%s]%n", thumbnailDirectory.getName());
             boolean result = thumbnailDirectory.mkdir();
             if (result) {
-                System.out.printf("Thumbnail directory created [%s]%n", thumbnailDirectory.getPath());
+                LOGGER.info("Thumbnail directory created [%s]%n", thumbnailDirectory.getPath());
             } else {
-                System.out.printf("ERROR: Failed to create thumbnail directory created [%s]%n", thumbnailDirectory.getPath());
+                LOGGER.info("ERROR: Failed to create thumbnail directory created [%s]%n", thumbnailDirectory.getPath());
             }
         }
     }

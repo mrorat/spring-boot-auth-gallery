@@ -18,7 +18,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 import org.hibernate.annotations.WhereJoinTable;
 import org.springframework.security.core.GrantedAuthority;
@@ -72,6 +71,7 @@ public class User implements UserDetails {
         this();
         this.roles.addAll(roles);
         this.isDeleted = "NOT_DELETED";
+        this.enabled = true;
     }
 
     public String getUsername() {

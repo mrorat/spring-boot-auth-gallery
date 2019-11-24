@@ -27,9 +27,10 @@ This user has access to these albums:
 <#else>
 You have access to these albums:
 </#if>
-	<#list albums as album>
-		<li>${album.name} - ${album.albumid}</li><br/>
-	</#list>
+<#list albums as album>
+	<li>${album.name} - ${album.albumid}</li><br/>
+</#list>
+<br>
 	
 <#if access_type?? && access_type=="admin">
 	<#list user.roles as role>

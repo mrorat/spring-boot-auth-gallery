@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class MyPasswordEncoder implements PasswordEncoder {
 
     public static void main(String[] args) {
-    	System.out.println(new MyPasswordEncoder().encode("test"));
+    	System.out.println(new MyPasswordEncoder().encode("SuperTrudneH45L0DoMojejGal3r11"));
     }
 
     public String encode(CharSequence passwordPlaintext) {

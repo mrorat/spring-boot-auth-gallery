@@ -16,6 +16,7 @@ import javax.persistence.TemporalType;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import com.quasar.Constants;
 import com.quasar.files.FileHandler;
 import com.quasar.util.CrcUtil;
 
@@ -106,7 +107,7 @@ public class Image implements Comparable<Image> {
     }
 
     public String getThumbnailPath() {
-        return this.path.substring(0, this.path.length() - this.name.length()) + "thumbnail" + File.separator + this.name;
+        return this.path.substring(0, this.path.length() - this.name.length()) + Constants.THUMBNAILS_DIR + File.separator + this.name;
     }
 
     public Date getDateTaken() {

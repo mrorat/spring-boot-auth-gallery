@@ -1,5 +1,6 @@
 package com.quasar.managers;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,4 +39,13 @@ public class AlbumManager {
 	public Set<Album> getAllAlbums() {
 		return this.albumService.getAlbums();
 	}
+	
+	public Optional<Album> fingById(String id) {
+	    return this.albumService.getAlbumById(id);
+	}
+
+    public Optional<Album> getAlbumByIdForCurrentUser(String albumId) {
+        User currentUser = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return albumService.getAlbumsForUser(currentUser.getID()).stream().filter(a -> a.getAlbumid().equalsIgnoreCase(albumId)).findFirst();
+    }
 }
