@@ -104,6 +104,7 @@ public class AdminController {
         Map<String, Object> map = new HashMap<>();
         map.put("albumCount", albumManager.getAllAlbums().size());
         map.put("userCount", userRepository.count());
+        map.put("topNavActive", "home");
         
         return new ModelAndView("admin/administration", map);
     }
@@ -123,6 +124,7 @@ public class AdminController {
 			roles.add(ga.getAuthority());
 		}
 		map.put("roles", roles);
+		map.put("topNavActive", "user-list");
 
 		if (withDeleted)
 			map.put("users", users);
@@ -136,7 +138,9 @@ public class AdminController {
 	@RequestMapping(value = "/show-roles", method = RequestMethod.GET)
 	public ModelAndView getShowRolesPage()
 	{
-		return new ModelAndView("admin/show_roles");
+	    Map<String, Object> map = new HashMap<>();
+        map.put("topNavActive", "show-roles");
+		return new ModelAndView("admin/show_roles", map);
 	}
 	
 	@GetMapping("/{userId}/albumPermissions")
@@ -277,8 +281,8 @@ public class AdminController {
 		return map;
 	}
 	
-	@GetMapping(path = "/addUserForm")
-	public ModelAndView addUserForm() {
+	@GetMapping(path = "/add-user")
+	public ModelAndView addUser() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("user", new UserDTO());
 		List<String> roles = new ArrayList<>();
@@ -286,6 +290,7 @@ public class AdminController {
 			roles.add(role.name());
 		}
 		map.put("roles", roles);
+        map.put("topNavActive", "add-user");
 		return new ModelAndView("admin/new_user", map);
 	}
 	

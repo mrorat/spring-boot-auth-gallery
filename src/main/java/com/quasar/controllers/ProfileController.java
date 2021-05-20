@@ -57,7 +57,7 @@ public class ProfileController
 	}
 	
 	@GetMapping(path = "/passwordChangeForm")
-	public ModelAndView addUserForm() {
+	public ModelAndView passwordChange() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("password", new PasswordDTO());
 		
@@ -65,7 +65,7 @@ public class ProfileController
 	}
 	
 	@PostMapping(value="/changePassword", consumes={"application/x-www-form-urlencoded"})
-	public RedirectView submit(@Valid @ModelAttribute("password") PasswordDTO passwordDTO, BindingResult result) {
+	public RedirectView submitPasswordChange(@Valid @ModelAttribute("password") PasswordDTO passwordDTO, BindingResult result) {
         
 		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
