@@ -1,5 +1,6 @@
 package com.quasar;
 
+import java.util.Collections;
 import java.util.UUID;
 
 import org.junit.After;
@@ -12,6 +13,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.quasar.dao.UserRepository;
+import com.quasar.security.ROLES;
+import com.quasar.security.Role;
 import com.quasar.security.User;
 
 @RunWith(SpringRunner.class)
@@ -29,10 +32,17 @@ public class AlbumDaoTest {
     
     @Test
     public void testFindByname() {
-    	User user = userRepository.findByUsername("michal");
+    	User fetchedUser = userRepository.findByUsername("michal");
+    	User persisterUser = null;
+    	if (fetchedUser == null) {
+    		User newUser = new User("michal", UUID.randomUUID().toString(), Collections.singletonList(new Role(ROLES.ROLE_ADMIN)));
+    		persisterUser = userRepository.save(newUser);
+    		fetchedUser = userRepository.findByUsername("michal");
+    	}
   
-    	Assert.assertNotNull(user);
-    	Assert.assertEquals("b08a9fbe-6c98-4f12-9efb-aca97aa81673", user.getID());
+    	Assert.assertNotNull(fetchedUser);
+    	Assert.assertNotNull(persisterUser);
+    	Assert.assertEquals(persisterUser.getID(), fetchedUser.getID());
     }
     
     @Test
