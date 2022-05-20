@@ -1,5 +1,9 @@
+<#assign sec=JspTaglibs["http://www.springframework.org/security/tags"]/>
 <#import "../master/master.ftl" as m>
-<@m.indexmaster>
+<@m.indexmaster page="user/profile">
+<@sec.authorize access="hasRole('ADMIN')">
+    <#include "../admin/admin_menu.ftl">
+</@sec.authorize>
 You are logged in as ${currentUser.username}:)
 <a href="/user/passwordChangeForm">Change password</a>
 

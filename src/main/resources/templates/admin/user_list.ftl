@@ -1,6 +1,6 @@
 <#import "../master/master.ftl" as m>
-<@m.indexmaster>
-	<script src="../../js/jquery.min.js"></script>
+<@m.indexmaster page="admin/user/list">
+	<script src="../../js/jquery-3.6.0.min.js"></script>
     <script>
 	function deleteUser(userId){
 	        
@@ -16,7 +16,6 @@
 	        });
 	    } 
     </script>
-    <#include "admin_menu.ftl">
 List of users !  <a href="/admin/user<#if withDeleted>">without deleted<#else>?withDeleted=true">with deleted</#if></a><br>
 <table class="standard-table" sty>  <thead>
     <tr>

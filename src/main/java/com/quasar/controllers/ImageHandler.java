@@ -10,6 +10,7 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,8 @@ import com.quasar.service.ImageService;
 public class ImageHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageHandler.class);
+    @Value(value="thumbnails.cache.max.age")
+    private static final int cacheMaxAge = 7776000;
 	private FileHandler fileHandler;
     private AlbumService albumService;
     private ImageService imageService;
@@ -83,7 +86,7 @@ public class ImageHandler {
     	String userName = SecurityContextHolder.getContext().getAuthentication().getName();
     	LOGGER.info(userName);
         String base64FileContent = this.fileHandler.getFileContentAsBase64Thumbnail(albumId, imageId);
-        this.modifyResponseHeaders(response, base64FileContent.length(), imageId, 7776000);
+        this.modifyResponseHeaders(response, base64FileContent.length(), imageId, cacheMaxAge);
         response.getOutputStream().write(base64FileContent.getBytes());
         response.flushBuffer();
     }

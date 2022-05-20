@@ -1,6 +1,6 @@
 <#import "../master/master.ftl" as m>
-<@m.indexmaster>
-	<script src="../../js/jquery.min.js"></script>
+<@m.indexmaster page="admin/user/album-permissions">
+	<script src="../../js/jquery-3.6.0.min.js"></script>
     <script>
 	function modifyPermissions(albumId, userId, state){
 	        
@@ -45,6 +45,7 @@ function filter(accessType = 'all') {
   }
 }
 </script>
+<#include "admin_menu.ftl">
 <h1>Setting permissions for user: ${userName}</h1>
 List of albums !<br>
 <form action="/admin/${userId}/albumPermissions">

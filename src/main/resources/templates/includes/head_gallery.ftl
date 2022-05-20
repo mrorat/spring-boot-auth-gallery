@@ -1,8 +1,8 @@
 <!-- head_gallery.ftl -->
 
   	<title>${albumName}</title>
- 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+ 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script type="text/javascript" src="../../../js/jquery-3.6.0.min.js"></script>
     <script language="JavaScript" type="text/javascript" src="../../../js/jquery-ui.min.js"></script> 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

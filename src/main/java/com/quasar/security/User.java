@@ -65,6 +65,7 @@ public class User implements UserDetails {
     public User() {
         this.roles = new HashSet<>();
         this.userid = UUID.randomUUID().toString();
+        this.isDeleted = "NOT_DELETED";
     }
 
     public User(Collection<Role> roles) {
