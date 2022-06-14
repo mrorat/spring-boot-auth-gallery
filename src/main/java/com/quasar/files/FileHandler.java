@@ -1,12 +1,16 @@
 package com.quasar.files;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Base64;
@@ -15,23 +19,23 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.stream.FileImageOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.drew.imaging.ImageProcessingException;
 import com.quasar.Constants;
 import com.quasar.model.Album;
 import com.quasar.model.Image;
 import com.quasar.service.ImageService;
+
+import io.micrometer.core.annotation.Timed;
+import mediautil.image.jpeg.AbstractImageInfo;
+import mediautil.image.jpeg.Entry;
+import mediautil.image.jpeg.Exif;
+import mediautil.image.jpeg.LLJTran;
 
 @Service
 public class FileHandler {
@@ -40,7 +44,7 @@ public class FileHandler {
 	private ImageService imageService;
 	
     private ExecutorService executor = null;
-    private ImageWriteParam iwp;
+//    private ImageWriteParam iwp;
 
     @Autowired
     public FileHandler(ImageService imageService) {
@@ -96,6 +100,7 @@ public class FileHandler {
         return base64image;
     }
 
+    @Timed
     public String getFileContentAsBase64Thumbnail(String albumId, String imageId) throws IOException {
     	long start = System.currentTimeMillis();
         LOGGER.info("Request to get thumbnail for image id: " + imageId);
@@ -104,11 +109,11 @@ public class FileHandler {
         InputStream finput = new FileInputStream(f);
         Throwable var6 = null;
 
-        String var8;
+        String thumbnailAsBase64;
         try {
             byte[] imageBytes = new byte[(int)Files.size(f.toPath())];
             finput.read(imageBytes, 0, imageBytes.length);
-            var8 = Base64.getEncoder().encodeToString(imageBytes);
+            thumbnailAsBase64 = Base64.getEncoder().encodeToString(imageBytes);
         } catch (Throwable var17) {
             var6 = var17;
             throw var17;
@@ -127,28 +132,19 @@ public class FileHandler {
         }
 
         LOGGER.info("Execution time [getFileContentAsBase64Thumbnail]: " + new Long(System.currentTimeMillis()-start).toString());
-        return var8;
+        return thumbnailAsBase64;
     }
 
     public void createThumbnail(File file) {
         Callable<Integer> task = () -> {
-            String thumbnailFileName = this.getPathForThumbnailImage(file);
-            File thumbnailFile = new File(thumbnailFileName);
+            String thumbnailFilePath = this.getPathForThumbnailImage(file);
+            File thumbnailFile = new File(thumbnailFilePath);
             if (!thumbnailFile.exists() || thumbnailFile.length() == 0) {
-                LOGGER.info("Creating thumbnail file for: " + file.getPath());
-                FileImageOutputStream output = null;
+                long thumbnailSize = resizeImage(ImageIO.read(file), thumbnailFilePath);
+                System.out.printf("Resized file from %d to %d - file: %s%n", thumbnailSize, file.length(), thumbnailFile.getAbsolutePath());
 
-                try {
-                    File outputFile = new File(thumbnailFileName);
-                    output = new FileImageOutputStream(outputFile);
-                    this.writeToFile(file, output);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                } finally {
-                    if (output != null) {
-                        output.close();
-                    }
-                }
+                rotateThumbnailIfNecessary(thumbnailFilePath, file);
+                
             } else {
                 LOGGER.debug("Thumbnail file for: " + file.getPath() + " already exists");
             }
@@ -158,22 +154,108 @@ public class FileHandler {
         this.executor.submit(task);
     }
 
+    private final int maxDimension = 400; // 400px
+    
+    long resizeImage(BufferedImage originalImage, String outputImagePath) throws IOException {
+//        int targetWidth = originalImage.getWidth() < 400 ? originalImage.getWidth() : 400;
+//        int targetHeight = (int) (originalImage.getHeight() * (400.0f / (float)originalImage.getWidth()));
+        Dimension thumbnailDimension = getThumbnailDimention(originalImage);
+        java.awt.Image resultingImage = originalImage.getScaledInstance(thumbnailDimension.width, thumbnailDimension.height, java.awt.Image.SCALE_DEFAULT);
+        BufferedImage outputImage = new BufferedImage(thumbnailDimension.width, thumbnailDimension.height, BufferedImage.TYPE_INT_RGB);
+        outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
+        File outputThumnailFile = new File(outputImagePath);
+        ImageIO.write(outputImage, "jpg", outputThumnailFile);
+        return outputThumnailFile.getTotalSpace();
+    }
+    
+    private Dimension getThumbnailDimention(BufferedImage originalImage) {
+        if (originalImage.getWidth() > originalImage.getHeight()) {
+            return new Dimension(maxDimension, (int) (originalImage.getHeight() * ((float)maxDimension / (float)originalImage.getWidth())));
+        } else {
+            return new Dimension((int) (originalImage.getWidth() * ((float)maxDimension / (float)originalImage.getHeight())), maxDimension);
+        }
+    }
+    
+    void rotateThumbnailIfNecessary(String thumbnailFileName, File originalImage) {
+        try {
+            // Read image EXIF data
+//            File imageFile = new File(originalImagePath);
+            LLJTran llj = new LLJTran(originalImage);
+            llj.read(LLJTran.READ_INFO, true);
+            AbstractImageInfo<?> imageInfo = llj.getImageInfo();
+            if (!(imageInfo instanceof Exif)) {
+                System.out.println("Image has no EXIF data");
+                throw new Exception("Image has no EXIF data");
+            }
+
+            int operation = 0;
+            // Determine the orientation
+            Exif exif = (Exif) imageInfo;
+            int orientation = 1;
+            Entry orientationTag = exif.getTagValue(Exif.ORIENTATION, true);
+            if (orientationTag != null)
+                orientation = (Integer) orientationTag.getValue(0);
+            
+            // Determine required transform operation
+            if (orientation > 0
+                    && orientation < Exif.opToCorrectOrientation.length)
+                operation = Exif.opToCorrectOrientation[orientation];
+            
+            if (operation == 0)
+            {
+                System.out.println("Rotation not necessary for file: " + thumbnailFileName);
+                return;
+            }
+            File thumbnailImageFile = new File(thumbnailFileName);
+            LLJTran thumbnailLLJ = new LLJTran(thumbnailImageFile);
+            thumbnailLLJ.read(LLJTran.READ_ALL, true);
+            
+            try (OutputStream output = new BufferedOutputStream(new FileOutputStream(thumbnailFileName))){   
+                // Transform image
+                
+                thumbnailLLJ.transform(operation, LLJTran.OPT_DEFAULTS
+                        | LLJTran.OPT_XFORM_ORIENTATION);
+                thumbnailLLJ.save(output, LLJTran.OPT_WRITE_ALL);
+                thumbnailLLJ.freeMemory();
+                String rotation = "unknown";
+                switch (operation) {
+                    case 7:
+                        rotation = "left";
+                        break;
+                    default:
+                        rotation = "unknown " + operation;
+                }
+                System.out.println("File " + thumbnailFileName + " rotated " + rotation);
+                
+            } catch (Exception ex) {
+                System.out.println("Exception: " + ex.getMessage());
+            } finally {
+                llj.freeMemory();
+            }
+
+        } catch (Exception e) {
+
+            System.out.println("Exception: " + e.getMessage());
+            // Unable to rotate image based on EXIF data
+        }
+    }
+
     public BasicFileAttributes getFileAttributes(File file) throws IOException {
         return Files.readAttributes(file.toPath(), BasicFileAttributes.class);
     }
 
-    private void writeToFile(File fileToWriteTo, FileImageOutputStream outputStream) throws IOException, ImageProcessingException {
-        BufferedImage originalImage = ImageIO.read(fileToWriteTo);
-//        Metadata metadata = ImageMetadataReader.readMetadata(fileToWriteTo);
-        ImageWriter writer = (ImageWriter)ImageIO.getImageWritersByFormatName("jpeg").next();
-        this.iwp = writer.getDefaultWriteParam();
-        this.iwp.setCompressionMode(2);
-        this.iwp.setCompressionQuality(0.25F);
-        writer.setOutput(outputStream);
-        IIOImage image = new IIOImage(originalImage, null, (IIOMetadata)null);
-        writer.write(image.getMetadata(), image, this.iwp);
-        LOGGER.info("Creating thumbnail file for: " + fileToWriteTo.getPath() + ", with size: " + fileToWriteTo.length());
-    }
+//    private void writeToFile(File originalFile, FileImageOutputStream outputStream) throws IOException, ImageProcessingException {
+//        BufferedImage originalImage = ImageIO.read(originalFile);
+////        Metadata metadata = ImageMetadataReader.readMetadata(fileToWriteTo);
+//        ImageWriter writer = (ImageWriter)ImageIO.getImageWritersByFormatName("jpeg").next();
+//        this.iwp = writer.getDefaultWriteParam();
+//        this.iwp.setCompressionMode(2);
+//        this.iwp.setCompressionQuality(0.25F);
+//        writer.setOutput(outputStream);
+//        IIOImage image = new IIOImage(originalImage, null, (IIOMetadata)null);
+//        writer.write(image.getMetadata(), image, this.iwp);
+//        LOGGER.info("Creating thumbnail file for: " + originalFile.getPath() + ", with size: " + originalFile.length());
+//    }
     
 //    int THUMBNAIL_IMG_WIDTH = 800;
 //    int THUMBNAIL_IMG_HEIGHT = 800;

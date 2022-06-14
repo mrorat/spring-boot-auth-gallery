@@ -1,7 +1,6 @@
 <#import "../master/master.ftl" as m>
 <#import "../spring.ftl" as spring>
-<@m.indexmaster>
-<#include "admin_menu.ftl"/>
+<@m.indexmaster page="admin/user/password-change">
             <form action="/admin/user/${userId}/passwordChange" method="post">
                 <@spring.bind path="password" />
                 User name: ${userName}<br>

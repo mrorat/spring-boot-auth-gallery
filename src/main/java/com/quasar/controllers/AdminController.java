@@ -368,6 +368,7 @@ public class AdminController {
     
     @GetMapping("/album/refresh/{albumId}")
     public ModelAndView refreshSpecificAlbum(@RequestParam Optional<String> error, @PathVariable("albumId") String albumId) {
+        LOGGER.info("Refreshing specific album, with ID: " + albumId);
         Optional<Album> optionalAlbum = albumManager.getAlbumByIdForCurrentUser(albumId);
         
         if (optionalAlbum.isPresent())

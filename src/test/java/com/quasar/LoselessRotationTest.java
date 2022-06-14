@@ -22,7 +22,8 @@ public class LoselessRotationTest {
 
 	@Test
 	public void rotate360deg() {
-		rotate("c:/code/gallery/src/test/resources/IMG_3065.JPG", "c:/code/gallery/src/test/resources/IMG_3065_90.JPG", ROTATION.ROTATE_90_DEG);
+        rotate("c:/code/gallery/src/test/resources/IMG_3065.JPG", "c:/code/gallery/src/test/resources/IMG_3065_90.JPG", ROTATION.ROTATE_90_DEG);
+        rotate("c:/code/gallery/src/test/resources/IMG_3065.JPG", "c:/code/gallery/src/test/resources/IMG_3065_from_exif.JPG", ROTATION.TAKE_FROM_EXIF);
 		rotate("c:/code/gallery/src/test/resources/IMG_3065_90.JPG", "c:/code/gallery/src/test/resources/IMG_3065_180.JPG", ROTATION.ROTATE_90_DEG);
 		rotate("c:/code/gallery/src/test/resources/IMG_3065_180.JPG", "c:/code/gallery/src/test/resources/IMG_3065_270.JPG", ROTATION.ROTATE_90_DEG);
 		rotate("c:/code/gallery/src/test/resources/IMG_3065_270.JPG", "c:/code/gallery/src/test/resources/IMG_3065_360.JPG", ROTATION.ROTATE_90_DEG);

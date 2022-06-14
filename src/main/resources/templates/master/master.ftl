@@ -13,6 +13,11 @@
 </head>
 <body>
 <#include "../includes/header.ftl"/>
+<#if page?starts_with("admin")>
+    <#include "../admin/admin_menu.ftl">
+<#else>
+   ${page}
+</#if>
 <#nested/>
 <#include "../includes/footer.ftl"/>
 </body>

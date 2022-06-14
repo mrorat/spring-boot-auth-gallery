@@ -67,11 +67,11 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
-        <dependency>
+		<dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
-        </dependency>
+            <version>[30.0-jre,)</version>
+		</dependency>
         <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-aspects</artifactId>
@@ -92,13 +92,15 @@
             <groupId>mediachest</groupId>
             <artifactId>mediachest</artifactId>
             <version>2.20</version>
-            <scope>test</scope>
+            <scope>system</scope>
+            <systemPath>/home/michal/code-private/spring-boot-auth-gallery/lib/MediaChest.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>mediautil</groupId>
             <artifactId>mediautil</artifactId>
             <version>2.20</version>
-            <scope>test</scope>
+            <scope>system</scope>
+            <systemPath>/home/michal/code-private/spring-boot-auth-gallery/lib/mediautil.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>

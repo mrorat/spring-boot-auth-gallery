@@ -1,6 +1,6 @@
 <#import "master/master.ftl" as m>
 <@m.indexmaster>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 	List of albums available for user<br>
 	Galleries:
 	<ol>

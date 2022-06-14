@@ -1,7 +1,6 @@
 <#import "../master/master.ftl" as m>
 <#import "../spring.ftl" as spring>
-<@m.indexmaster>
-<#include "admin_menu.ftl"/>
+<@m.indexmaster page="admin/user/new">
             <form action="/admin/user" method="post">
                 <@spring.bind path="user" />
                 User name:<br>
