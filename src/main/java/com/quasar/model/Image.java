@@ -49,6 +49,8 @@ public class Image implements Comparable<Image> {
     private boolean isVertical;
     @Column(name = "duplicate_of_imageid")
     private String duplicateOfImageId;
+    @Column(name = "file_exists")
+    private boolean fileExists;
 
     public Image() {}
     
@@ -166,6 +168,14 @@ public class Image implements Comparable<Image> {
 				+ ", nextId=" + nextId + ", previousId=" + previousId
 				+ ", isVertical=" + isVertical + ", duplicateOfImageId="
 				+ duplicateOfImageId + "]";
+	}
+
+	public boolean fileExists() {
+		return fileExists;
+	}
+
+	public void markAsNonExistentFile() {
+		fileExists = false;
 	}
 
 }

@@ -46,7 +46,7 @@ public class AlbumDaoTest {
     }
     
     @Test
-    public void testSavingUser() {
+    public void testFindByUserid() {
     	User user = new User();
     	user.setEnabled(true);
     	user.setPassword("someHardToGuessPassword");

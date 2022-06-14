@@ -1,5 +1,7 @@
 package com.quasar.service;
 
+import java.util.Set;
+
 import com.quasar.security.User;
 
 public interface UserService {
@@ -7,7 +9,7 @@ public interface UserService {
 
     User getUserByEmail(String email);
 
-    Iterable<User> getAllAdminUsers();
+    Set<User> getAllAdminUsers();
 
 	User getUserById(String userId);
 	

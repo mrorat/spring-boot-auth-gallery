@@ -69,6 +69,7 @@ import com.quasar.service.ImageService;
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/admin")
+
 public class AdminController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminController.class);
@@ -298,10 +299,7 @@ public class AdminController {
     public RedirectView submit(@Valid @ModelAttribute("user") UserDTO userDTO, @ModelAttribute("role") String role, BindingResult result) {
         Role roleFromDb = roleRepository.findByName(role);
         
-        User user = new User(Collections.singleton(roleFromDb));
-        user.setUsername(userDTO.getName());
-        user.setPassword(userDTO.getPassword());
-        user.setEnabled(true);
+        User user = new User(userDTO.getName(), userDTO.getPassword(), Collections.singleton(roleFromDb));
         User savedUser = userRepository.save(user);
         
         return new RedirectView("/admin/user/" + savedUser.getID() + "/profile");
@@ -371,8 +369,12 @@ public class AdminController {
         LOGGER.info("Refreshing specific album, with ID: " + albumId);
         Optional<Album> optionalAlbum = albumManager.getAlbumByIdForCurrentUser(albumId);
         
-        if (optionalAlbum.isPresent())
+        if (optionalAlbum.isPresent()) {
             processAlbums(Collections.singletonList(new File(optionalAlbum.get().getPath())));
+        } else {
+        	User currentUser = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        	LOGGER.warn("Either album does not exist or user does not have access to it. Album ID: " + albumId + ", User ID: " + currentUser.getID());
+        }
         
         return new ModelAndView("redirect:/gallery");
     }

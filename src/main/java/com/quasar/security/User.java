@@ -41,7 +41,7 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private boolean enabled;
-    @Column(name = "created_date")
+    @Column(name = "created_date", updatable = false, insertable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
     @Column(name = "deleted_date")
@@ -75,7 +75,13 @@ public class User implements UserDetails {
         this.enabled = true;
     }
 
-    public String getUsername() {
+    public User(String username, String password, Collection<Role> roles) {
+		this(roles);
+		this.username = username;
+		this.setPassword(password);
+	}
+
+	public String getUsername() {
         return this.username;
     }
 

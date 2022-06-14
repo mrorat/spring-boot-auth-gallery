@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.net.URL;
 
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ import mediautil.image.jpeg.Exif;
 import mediautil.image.jpeg.LLJTran;
 
 public class LoselessRotationTest {
-	
+
 	public enum ROTATION {
 		ROTATE_90_DEG,
 		ROTATE_270_DEG,
@@ -22,19 +23,20 @@ public class LoselessRotationTest {
 
 	@Test
 	public void rotate360deg() {
-        rotate("c:/code/gallery/src/test/resources/IMG_3065.JPG", "c:/code/gallery/src/test/resources/IMG_3065_90.JPG", ROTATION.ROTATE_90_DEG);
-        rotate("c:/code/gallery/src/test/resources/IMG_3065.JPG", "c:/code/gallery/src/test/resources/IMG_3065_from_exif.JPG", ROTATION.TAKE_FROM_EXIF);
-		rotate("c:/code/gallery/src/test/resources/IMG_3065_90.JPG", "c:/code/gallery/src/test/resources/IMG_3065_180.JPG", ROTATION.ROTATE_90_DEG);
-		rotate("c:/code/gallery/src/test/resources/IMG_3065_180.JPG", "c:/code/gallery/src/test/resources/IMG_3065_270.JPG", ROTATION.ROTATE_90_DEG);
-		rotate("c:/code/gallery/src/test/resources/IMG_3065_270.JPG", "c:/code/gallery/src/test/resources/IMG_3065_360.JPG", ROTATION.ROTATE_90_DEG);
+		String fileName = "IMG_3065";
+		rotate(fileName + ".JPG", fileName + "_90.JPG", ROTATION.ROTATE_90_DEG);
+		rotate(fileName + "_90.JPG", fileName + "_180.JPG", ROTATION.ROTATE_90_DEG);
+		rotate(fileName + "_180.JPG", fileName + "_270.JPG", ROTATION.ROTATE_90_DEG);
+		rotate(fileName + "_270.JPG", fileName + "_360.JPG", ROTATION.ROTATE_90_DEG);
 	}
-		
-		
-	private void rotate(String inputFile, String outputFile, ROTATION rotation) {
-		
+
+
+	private void rotate(String inputFileName, String outputFileName, ROTATION rotation) {
+
 		try {
 		    // Read image EXIF data
-		    File imageFile = new File(inputFile);
+			URL url = LoselessRotationTest.class.getClassLoader().getResource(inputFileName);
+		    File imageFile = new File(url.getPath());
 			LLJTran llj = new LLJTran(imageFile);
 		    llj.read(LLJTran.READ_INFO, true);
 		    AbstractImageInfo<?> imageInfo = llj.getImageInfo();
@@ -56,19 +58,23 @@ public class LoselessRotationTest {
 		    		Entry orientationTag = exif.getTagValue(Exif.ORIENTATION, true);
 		    		if (orientationTag != null)
 		    			orientation = (Integer) orientationTag.getValue(0);
-		    		
+
 		    		// Determine required transform operation
 		    		if (orientation > 0
 		    				&& orientation < Exif.opToCorrectOrientation.length)
 		    			operation = Exif.opToCorrectOrientation[orientation];
 		    		break;
-		    }		    
-		    
+		    }
+
 		    if (operation == 0)
 		        throw new Exception("Image orientation is already correct");
 
-		    
-			try (OutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile))){   
+		    File outputFile = new File(url.getPath() + outputFileName);
+		    if (outputFile.exists()) {
+		    	outputFile.delete();
+		    }
+
+			try (OutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile))){
 		        // Transform image
 		        llj.read(LLJTran.READ_ALL, true);
 		        llj.transform(operation, LLJTran.OPT_DEFAULTS
@@ -82,7 +88,7 @@ public class LoselessRotationTest {
 
 		} catch (Exception e) {
 		    // Unable to rotate image based on EXIF data
-		    
+		    System.out.println(e.getMessage());
 		}
 	}
 

@@ -1,5 +1,6 @@
 package com.quasar.security;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -10,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 @Entity
@@ -27,6 +30,9 @@ public class Role {
     @Transient
     private ROLES role;
     private String name;
+    @Column(name = "deleted_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date deletedDate;
     @ManyToMany(
         fetch = FetchType.LAZY
     )

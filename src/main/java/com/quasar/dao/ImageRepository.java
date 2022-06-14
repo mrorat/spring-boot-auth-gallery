@@ -19,5 +19,5 @@ public interface ImageRepository extends CrudRepository<Image, String> {
             value = "SELECT * FROM image i JOIN album a ON a.albumid=i.albumid WHERE a.albumid=?1",
             nativeQuery = true
         )
-	List<Image> getImagesForUser(String userid);
+	List<Image> getImagesForAlbum(String albumId);
 }

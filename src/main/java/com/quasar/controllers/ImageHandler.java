@@ -37,6 +37,7 @@ public class ImageHandler {
 	private FileHandler fileHandler;
     private AlbumService albumService;
     private ImageService imageService;
+	private String missingFileBase64Content;
 
     @Autowired
     public ImageHandler(FileHandler fileHandler, AlbumService albumService, ImageService imageService) {
@@ -50,7 +51,7 @@ public class ImageHandler {
         method = {RequestMethod.GET}
     )
     public void getImage(HttpServletResponse response, @PathVariable String albumId, @PathVariable String imageId) throws IOException {
-        InputStreamWithSize myStreamWithSize = this.fileHandler.getStreamWithSize(albumId, imageId);
+        InputStreamWithSize myStreamWithSize = this.fileHandler.getStreamWithSize(getImageOrThrow(imageId).getPath());
         Throwable var5 = null;
 
         try {
@@ -85,18 +86,39 @@ public class ImageHandler {
     public void getThumbnailImageAsBase64(HttpServletResponse response, @PathVariable String albumId, @PathVariable String imageId) throws IOException {
     	String userName = SecurityContextHolder.getContext().getAuthentication().getName();
     	LOGGER.info(userName);
-        String base64FileContent = this.fileHandler.getFileContentAsBase64Thumbnail(albumId, imageId);
-        this.modifyResponseHeaders(response, base64FileContent.length(), imageId, cacheMaxAge);
-        response.getOutputStream().write(base64FileContent.getBytes());
-        response.flushBuffer();
+    	try {
+            LOGGER.info("Request to get thumbnail for image id: " + imageId);
+            Image image = getImageOrThrow(imageId);
+            String base64FileContent = null;
+            if (image.fileExists()) {
+		        base64FileContent = this.fileHandler.getFileContentAsBase64Thumbnail(albumId, imageId, image.getPath());
+            } else {
+            	base64FileContent = getMissingFileBase64Content();
+
+            }
+            this.modifyResponseHeaders(response, base64FileContent.length(), imageId, 7776000);
+	        response.getOutputStream().write(base64FileContent.getBytes());
+	        response.flushBuffer();
+    	} catch (IOException ex) {
+    		// we are unable to get the file from disk
+    		imageService.markImageAsNonExistent(imageId);
+    		response.setStatus(404);
+    	}
     }
 
-    @RequestMapping(
+    private String getMissingFileBase64Content() throws IOException {
+		if (missingFileBase64Content == null) {
+			missingFileBase64Content = fileHandler.getFileContentAsBase64ThumbnailFromClasspath("static/img/image-not-found.png");
+		}
+		return missingFileBase64Content;
+	}
+
+	@RequestMapping(
         path = {"/imagesbase64/{albumId}/{imageId}"},
         method = {RequestMethod.GET}
     )
     public void getImageAsBase64(HttpServletResponse response, @PathVariable String albumId, @PathVariable String imageId) throws IOException {
-        String base64FileContent = this.fileHandler.getFileContentAsBase64(albumId, imageId);
+        String base64FileContent = this.fileHandler.getFileContentAsBase64(getImageOrThrow(imageId).getPath());
         this.modifyResponseHeaders(response, base64FileContent.length(), imageId, 7776000);
         response.getOutputStream().write(base64FileContent.getBytes());
         response.flushBuffer();
@@ -137,7 +159,7 @@ public class ImageHandler {
         this.albumService.renameAlbum(albumId, newAlbumName);
         LOGGER.info("User [%s] selected renamed album [ID: %s] to new name [%s]%n", userName, albumId, newAlbumName);
     }
-    
+
     @RequestMapping(
             path = {"/images/{iid}/rotate"},
             method = {RequestMethod.POST}
@@ -155,5 +177,13 @@ public class ImageHandler {
         response.addHeader("content-disposition", "attachment;filename=" + imageId + ".jpg");
         response.addHeader("cache-control", "private, max-age=" + cacheMaxAge);
         response.addHeader("expires", Instant.now().plusSeconds(7776000L).toString());
+    }
+
+
+    private Image getImageOrThrow(String imageId) {
+    	Optional<Image> image = imageService.getImageById(imageId);
+    	if (!image.isPresent())
+    		throw new RuntimeException("Image with ID: " + imageId + " does not exist in the database.");
+    	return image.get();
     }
 }

@@ -102,6 +102,8 @@ public class Album implements Comparable<Album> {
                 if (firstKey.isPresent()) {
                     this.created_date = ((Image)this.images.get(firstKey.get())).getDateTaken();
                     this.name = this.created_date.toString() + " " + this.name;
+                } else {
+                	this.created_date = new Date();
                 }
             }
         }

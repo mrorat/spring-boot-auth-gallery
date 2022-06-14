@@ -16,7 +16,9 @@ public interface ImageService {
 
     SortedSet<Image> getImages();
     
-    SortedSet<Image> getImagesForUser(String userid);
+    SortedSet<Image> getImagesForUser(String albumId);
 
 	void saveRotation(String iid, Rotation rotation, String userId);
+
+	void markImageAsNonExistent(String imageId);
 }

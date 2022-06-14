@@ -9,11 +9,14 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class GalleryApplication {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GalleryApplication.class);
     private static String galleryHomeDirectory;
 
     public static void main(String[] args) throws IOException {
@@ -36,6 +39,8 @@ public class GalleryApplication {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        
+        LOGGER.info("Gallery home directory set to: " + galleryHomeDirectory);
 
         SpringApplication.run(GalleryApplication.class, args);
     }

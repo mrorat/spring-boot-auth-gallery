@@ -14,7 +14,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Base64;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,8 +27,6 @@ import org.springframework.stereotype.Service;
 
 import com.quasar.Constants;
 import com.quasar.model.Album;
-import com.quasar.model.Image;
-import com.quasar.service.ImageService;
 
 import io.micrometer.core.annotation.Timed;
 import mediautil.image.jpeg.AbstractImageInfo;
@@ -41,33 +38,23 @@ import mediautil.image.jpeg.LLJTran;
 public class FileHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
-	private ImageService imageService;
-	
+
     private ExecutorService executor = null;
 //    private ImageWriteParam iwp;
 
     @Autowired
-    public FileHandler(ImageService imageService) {
-    	this.imageService = imageService;
+    public FileHandler() {
         this.executor = Executors.newFixedThreadPool(5);
     }
 
-    private Image getImageOrThrow(String imageId) {
-    	Optional<Image> image = imageService.getImageById(imageId);
-    	if (!image.isPresent())
-    		throw new RuntimeException("Image with ID: " + imageId + " does not exist in the database.");
-    	return image.get();
-    }
-    
-    public InputStreamWithSize getStreamWithSize(String albumId, String imageId) throws FileNotFoundException, IOException {
-        File f = new File(getImageOrThrow(imageId).getPath());
+
+    public InputStreamWithSize getStreamWithSize(String imagePath) throws FileNotFoundException, IOException {
+        File f = new File(imagePath);
         return new InputStreamWithSize(new FileInputStream(f), Files.size(f.toPath()));
     }
 
-    public String getFileContentAsBase64(String albumId, String imageId) throws IOException {
-        LOGGER.info("Request to get image id: " + imageId);
-        String filePath = getImageOrThrow(imageId).getPath();
-        File f = new File(filePath);
+    public String getFileContentAsBase64(String imagePath) throws IOException {
+        File f = new File(imagePath);
         InputStream finput = new FileInputStream(f);
         Throwable throwable = null;
 
@@ -100,36 +87,25 @@ public class FileHandler {
         return base64image;
     }
 
-    @Timed
-    public String getFileContentAsBase64Thumbnail(String albumId, String imageId) throws IOException {
+    public String getFileContentAsBase64Thumbnail(String albumId, String imageId, String imagePath) throws IOException {
     	long start = System.currentTimeMillis();
-        LOGGER.info("Request to get thumbnail for image id: " + imageId);
-        String filePath = getImageOrThrow(imageId).getThumbnailPath();
-        File f = new File(filePath);
-        InputStream finput = new FileInputStream(f);
-        Throwable var6 = null;
 
-        String thumbnailAsBase64;
-        try {
-            byte[] imageBytes = new byte[(int)Files.size(f.toPath())];
-            finput.read(imageBytes, 0, imageBytes.length);
-            thumbnailAsBase64 = Base64.getEncoder().encodeToString(imageBytes);
-        } catch (Throwable var17) {
-            var6 = var17;
-            throw var17;
-        } finally {
-            if (finput != null) {
-                if (var6 != null) {
-                    try {
-                        finput.close();
-                    } catch (Throwable var16) {
-                        var6.addSuppressed(var16);
-                    }
-                } else {
-                    finput.close();
-                }
-            }
+        File f = new File(imagePath);
+        if (f.exists()) {
+	        InputStream finput = new FileInputStream(f);
+	        Throwable var6 = null;
+		    byte[] imageBytes = new byte[(int)Files.size(f.toPath())];
+		    finput.read(imageBytes, 0, imageBytes.length);
+	        String base64 = getBase64FromInputStream(imageBytes);
+			LOGGER.info("Execution time [getFileContentAsBase64Thumbnail]: " + new Long(System.currentTimeMillis()-start).toString());
+			return base64;
+        } else {
+        	String errorMsg = String.format("File not found filePath: %s, ablumID: %s, imageID: %s", imagePath, albumId, imageId);
+        	LOGGER.warn(errorMsg);
+        	throw new IOException(errorMsg);
         }
+    }
+
 
         LOGGER.info("Execution time [getFileContentAsBase64Thumbnail]: " + new Long(System.currentTimeMillis()-start).toString());
         return thumbnailAsBase64;
@@ -144,7 +120,7 @@ public class FileHandler {
                 System.out.printf("Resized file from %d to %d - file: %s%n", thumbnailSize, file.length(), thumbnailFile.getAbsolutePath());
 
                 rotateThumbnailIfNecessary(thumbnailFilePath, file);
-                
+
             } else {
                 LOGGER.debug("Thumbnail file for: " + file.getPath() + " already exists");
             }
@@ -155,7 +131,7 @@ public class FileHandler {
     }
 
     private final int maxDimension = 400; // 400px
-    
+
     long resizeImage(BufferedImage originalImage, String outputImagePath) throws IOException {
 //        int targetWidth = originalImage.getWidth() < 400 ? originalImage.getWidth() : 400;
 //        int targetHeight = (int) (originalImage.getHeight() * (400.0f / (float)originalImage.getWidth()));
@@ -167,7 +143,7 @@ public class FileHandler {
         ImageIO.write(outputImage, "jpg", outputThumnailFile);
         return outputThumnailFile.getTotalSpace();
     }
-    
+
     private Dimension getThumbnailDimention(BufferedImage originalImage) {
         if (originalImage.getWidth() > originalImage.getHeight()) {
             return new Dimension(maxDimension, (int) (originalImage.getHeight() * ((float)maxDimension / (float)originalImage.getWidth())));
@@ -175,7 +151,7 @@ public class FileHandler {
             return new Dimension((int) (originalImage.getWidth() * ((float)maxDimension / (float)originalImage.getHeight())), maxDimension);
         }
     }
-    
+
     void rotateThumbnailIfNecessary(String thumbnailFileName, File originalImage) {
         try {
             // Read image EXIF data
@@ -195,12 +171,12 @@ public class FileHandler {
             Entry orientationTag = exif.getTagValue(Exif.ORIENTATION, true);
             if (orientationTag != null)
                 orientation = (Integer) orientationTag.getValue(0);
-            
+
             // Determine required transform operation
             if (orientation > 0
                     && orientation < Exif.opToCorrectOrientation.length)
                 operation = Exif.opToCorrectOrientation[orientation];
-            
+
             if (operation == 0)
             {
                 System.out.println("Rotation not necessary for file: " + thumbnailFileName);
@@ -209,10 +185,10 @@ public class FileHandler {
             File thumbnailImageFile = new File(thumbnailFileName);
             LLJTran thumbnailLLJ = new LLJTran(thumbnailImageFile);
             thumbnailLLJ.read(LLJTran.READ_ALL, true);
-            
-            try (OutputStream output = new BufferedOutputStream(new FileOutputStream(thumbnailFileName))){   
+
+            try (OutputStream output = new BufferedOutputStream(new FileOutputStream(thumbnailFileName))){
                 // Transform image
-                
+
                 thumbnailLLJ.transform(operation, LLJTran.OPT_DEFAULTS
                         | LLJTran.OPT_XFORM_ORIENTATION);
                 thumbnailLLJ.save(output, LLJTran.OPT_WRITE_ALL);
@@ -226,7 +202,7 @@ public class FileHandler {
                         rotation = "unknown " + operation;
                 }
                 System.out.println("File " + thumbnailFileName + " rotated " + rotation);
-                
+
             } catch (Exception ex) {
                 System.out.println("Exception: " + ex.getMessage());
             } finally {
@@ -256,24 +232,24 @@ public class FileHandler {
 //        writer.write(image.getMetadata(), image, this.iwp);
 //        LOGGER.info("Creating thumbnail file for: " + originalFile.getPath() + ", with size: " + originalFile.length());
 //    }
-    
+
 //    int THUMBNAIL_IMG_WIDTH = 800;
 //    int THUMBNAIL_IMG_HEIGHT = 800;
 //    private void resizeImageAndSave(File originalFile, FileImageOutputStream outputStream) throws IOException {
 //    	BufferedImage originalImage = ImageIO.read(originalFile);
 //    	BufferedImage resizedImage = null;
 //    	int type = originalImage.getType() == 0? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
-//    	
+//
 //    	int finalWidth = 0;
 //    	int finalHeight = 0;
 //    	if (Math.max(originalImage.getWidth(), originalImage.getHeight()) == originalImage.getWidth()) {
 //    		float ratio = THUMBNAIL_IMG_WIDTH / originalImage.getWidth();
 //    		resizedImage = new BufferedImage(THUMBNAIL_IMG_WIDTH, (int)(originalImage.getHeight() * ratio), type);
 //    	} else {
-//    		float ratio = THUMBNAIL_IMG_WIDTH / originalImage.getWidth();    		
+//    		float ratio = THUMBNAIL_IMG_WIDTH / originalImage.getWidth();
 //    		resizedImage = new BufferedImage((int)(originalImage.getWidth() * ratio), THUMBNAIL_IMG_WIDTH, type);
 //    	}
-//    	
+//
 //    	Graphics2D graphics = resizedImage.createGraphics();
 //    	resizedImage.getGraphics().drawImage(originalImage.getScaledInstance(resizedImage.getWidth(), resizedImage.getHeight(), java.awt.Image.SCALE_SMOOTH), 0, 0, null);
 //
@@ -284,7 +260,7 @@ public class FileHandler {
 //    }
 
     private String getPathForThumbnailImage(File file) {
-        return file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - file.getName().length()) 
+        return file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - file.getName().length())
                 + Constants.THUMBNAILS_DIR + File.separator + file.getName();
     }
 
@@ -331,4 +307,5 @@ public class FileHandler {
             ex.printStackTrace();
         }
     }
+
 }

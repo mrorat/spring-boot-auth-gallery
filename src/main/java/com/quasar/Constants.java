@@ -1,5 +1,7 @@
 package com.quasar;
 
 public class Constants {
-    public final static String THUMBNAILS_DIR = "thumbnails";
+
+	public static final String THUMBNAILS_DIR = "thumbnails";
+
 }
