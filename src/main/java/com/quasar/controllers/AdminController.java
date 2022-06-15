@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,7 +71,9 @@ import com.quasar.service.ImageService;
 
 public class AdminController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdminController.class);
+    private static final String ACCESS_TYPE = "accessType";
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AdminController.class);
 
 	private UserRepository userRepository;
 	private AlbumManager albumManager;
@@ -97,10 +98,7 @@ public class AdminController {
 		this.fileHandler = fileHandler;
 	}
 
-    @RequestMapping(
-        value = {"/", ""},
-        method = {RequestMethod.GET}
-    )
+    @GetMapping({"/", ""})
     public ModelAndView getUserProfilePage(@RequestParam Optional<String> error) {
         Map<String, Object> map = new HashMap<>();
         map.put("albumCount", albumManager.getAllAlbums().size());
@@ -115,11 +113,11 @@ public class AdminController {
 	 * @param withDeleted - parameter used to specify if deleted users are returned
 	 * @return ModelAndView with all users
 	 */
-	@RequestMapping(value = "/user", method = RequestMethod.GET)
+	@GetMapping("/user")
 	public ModelAndView getUserListPage(@RequestParam(value = "withDeleted", required=false, defaultValue = "false") boolean withDeleted) {
 		Map<String, Object> map = new HashMap<>();
 		List<User> users = userRepository.findAll();
-		Set<String> roles = new HashSet<String>();
+		Set<String> roles = new HashSet<>();
 		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities())
 		{
 			roles.add(ga.getAuthority());
@@ -136,7 +134,7 @@ public class AdminController {
 	}
 	
 	
-	@RequestMapping(value = "/show-roles", method = RequestMethod.GET)
+	@GetMapping("/show-roles")
 	public ModelAndView getShowRolesPage()
 	{
 	    Map<String, Object> map = new HashMap<>();
@@ -147,8 +145,11 @@ public class AdminController {
 	@GetMapping("/{userId}/albumPermissions")
 	public ModelAndView getAlbumPermissionsPage(@PathVariable String userId, @RequestParam(value = "accessStatus", required=false, defaultValue = "all") String accessStatus) {
 		Optional<User> user = userRepository.findById(userId);
+		Map<String, Object> map = new HashMap<>();
 		if (!user.isPresent()) {
 			new ModelAndView("access_denied");
+		} else {
+			map.put("userName", user.get().getUsername());
 		}
 		
 		SortedSet<AlbumWithPermissions> albums = new TreeSet<>();
@@ -157,28 +158,25 @@ public class AdminController {
 		Set<Album> noAccessAlbums = allAlbums.stream()
 		        .filter(a -> userAlbums.stream()
 		                .noneMatch(ua -> ua.getAlbumid().equals(a.getAlbumid()))).collect(Collectors.toSet());
-		Map<String, Object> map = new HashMap<>();
 
 		switch (accessStatus) {
 		    case "has_access":
 		        albums.addAll(userAlbums.stream().map(x -> new AlbumWithPermissions(x, true)).collect(Collectors.toSet()));
-		        map.put("accessType", "hasAccess");
+		        map.put(ACCESS_TYPE, "hasAccess");
                 break;
 		    case "no_access":
 		        albums.addAll(noAccessAlbums.stream().map(x -> new AlbumWithPermissions(x, false)).collect(Collectors.toSet()));
-		        map.put("accessType", "noAccess");
+		        map.put(ACCESS_TYPE, "noAccess");
 		        break;
             default :
                 albums.addAll(noAccessAlbums.stream().map(x -> new AlbumWithPermissions(x, false)).collect(Collectors.toSet()));
                 albums.addAll(userAlbums.stream().map(x -> new AlbumWithPermissions(x, true)).collect(Collectors.toSet()));
-                map.put("accessType", "all");
+                map.put(ACCESS_TYPE, "all");
                 break;
         }
 		
 		map.put("albums", albums);
 		map.put("userId", userId);
-		map.put("userName", user.get().getUsername());
-		
 		return new ModelAndView("admin/album_permissions", map);
 	}
 	
@@ -186,7 +184,7 @@ public class AdminController {
 	public ModelAndView getPasswordChangeForm(@PathVariable String userId) {
 		Optional<User> user = userRepository.findById(userId);
 		if (!user.isPresent()) {
-			return new ModelAndView("error/404");
+			return new ModelAndView(Constants.ERROR_404);
 		}
 		Map<String, Object> map = new HashMap<>();
 		
@@ -206,26 +204,25 @@ public class AdminController {
         	
         	User savedUser = userRepository.save(user.get());
         	return new RedirectView("/admin/user/profile/" + savedUser.getID());
-        } else return new RedirectView("error/404");        
+        } else return new RedirectView(Constants.ERROR_404);        
     }
 	
-	@RequestMapping(path="/changeAlbumName/{albumId}", 
-		method = RequestMethod.POST)
+	@PostMapping("/changeAlbumName/{albumId}")
 	public @ResponseBody Map<String, String> changeAlbumName(@PathVariable String albumId, @RequestBody AlbumNameChangeRequest body) {
 		Map<String, String> map = new HashMap<>();
 		
 		Optional<Album> album = albumService.getAlbumById(albumId);
 		if (album.isPresent()) {
 			File albumFile = new File(album.get().getPath());
-			LOGGER.info("Changing album: " + albumId + ", old name: " + albumFile.getName() +", new name: " + body.getAlbumName());
+			LOGGER.info("Changing album: {}, old name: {}, new name: {}", albumId, albumFile.getName(), body.getAlbumName());
 			
 			if (!albumFile.exists()) {
-				LOGGER.info("Directory ["+ albumFile.getAbsolutePath() + "] does not exists");
+				LOGGER.info("Directory [{}] does not exists", albumFile.getAbsolutePath());
 			}
 			
 			File newAlbumFile = new File(album.get().getPath().replace(albumFile.getName(), body.getAlbumName()));
-			LOGGER.info("Old path: " + albumFile.getAbsolutePath());
-			LOGGER.info("New path: " + newAlbumFile.getAbsolutePath());
+			LOGGER.info("Old path: {}", albumFile.getAbsolutePath());
+			LOGGER.info("New path: {}", newAlbumFile.getAbsolutePath());
 			boolean renamingSuccess = albumFile.renameTo(newAlbumFile);
 
 			if (renamingSuccess) {
@@ -245,10 +242,9 @@ public class AdminController {
 		return map;
 	}
 	
-	@RequestMapping(path="/changeAlbumPermissions/{albumId}/{userId}/{isEnabled}", 
-			method = RequestMethod.POST)
+	@PostMapping("/changeAlbumPermissions/{albumId}/{userId}/{isEnabled}")
 	public @ResponseBody Map<String, String> enableAlbumForUser(@PathVariable String albumId, @PathVariable String userId, @PathVariable boolean isEnabled, @RequestBody String body) {
-		LOGGER.info("Changing permissions for user " + userId + ", album: " + albumId + " to " + (!isEnabled ? "ENABLED" : "DISABLED"));
+		LOGGER.info("Changing permissions for user {}, album: {} to {}", userId, albumId, (!isEnabled ? "ENABLED" : "DISABLED"));
 		
 		AlbumPermission albumPermission = permissionsRepository.findLastByAlbumAndUser(albumId, userId);
 		
@@ -317,7 +313,7 @@ public class AdminController {
 			map.put("user", new UserSafeDTO(user));
 			
 		} else {
-			return new ModelAndView("error/404");
+			return new ModelAndView(Constants.ERROR_404);
 		}
 		
 		return new ModelAndView("user/profile", map);
@@ -336,7 +332,7 @@ public class AdminController {
     @GetMapping("/album/refresh")
     public ModelAndView getRefreshAlbums(@RequestParam Optional<String> error) {
         Set<Album> allAlbums = albumManager.getAllAlbums();
-        Set<String> albumNames = allAlbums.stream().map(a -> a.getName()).collect(Collectors.toSet());
+        Set<String> albumNames = allAlbums.stream().map(Album::getName).collect(Collectors.toSet());
         File[] albumFiles = getAlbumDirectories();
         Stream<File> albumStream = Arrays.stream(albumFiles);
         List<File> unknownAlbumDirectories = albumStream
@@ -361,22 +357,22 @@ public class AdminController {
         
         processAlbums(albumsToProcess);
 
-        return new ModelAndView("redirect:/gallery");
+        return new ModelAndView(Constants.REDIRECT_GALLERY);
     }
     
     @GetMapping("/album/refresh/{albumId}")
     public ModelAndView refreshSpecificAlbum(@RequestParam Optional<String> error, @PathVariable("albumId") String albumId) {
-        LOGGER.info("Refreshing specific album, with ID: " + albumId);
+        LOGGER.info("Refreshing specific album, with ID: {}", albumId);
         Optional<Album> optionalAlbum = albumManager.getAlbumByIdForCurrentUser(albumId);
         
         if (optionalAlbum.isPresent()) {
             processAlbums(Collections.singletonList(new File(optionalAlbum.get().getPath())));
         } else {
         	User currentUser = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        	LOGGER.warn("Either album does not exist or user does not have access to it. Album ID: " + albumId + ", User ID: " + currentUser.getID());
+        	LOGGER.warn("Either album does not exist or user does not have access to it. Album ID: {}, User ID: {}", albumId, currentUser.getID());
         }
         
-        return new ModelAndView("redirect:/gallery");
+        return new ModelAndView(Constants.REDIRECT_GALLERY);
     }
     
     @Async
@@ -384,35 +380,35 @@ public class AdminController {
         Map<String, String> postponedImageDuplicateUpdates = new HashMap<>();
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         
-        LOGGER.info("Processing " + albumsToProcess.size() + " albums");
+        LOGGER.info("Processing {} albums", albumsToProcess.size());
         albumsToProcess.stream().forEach(albumFile -> executor.execute(new Runnable() {
             
             @Override
             public void run() {
                 
-                LOGGER.info("Thread [" + Thread.currentThread().getId() + "] processing album [" + albumFile.getName() + "]");
-                File[] imageFileList = albumFile.listFiles((filex) -> {
-                    return !filex.isDirectory() && filex.toString().toLowerCase().endsWith("jpg");
-                });
-                LOGGER.info("Thread [" + Thread.currentThread().getId() + "] found " + imageFileList.length + " images for album [" + albumFile.getName() + "]");
+                LOGGER.info("Thread [{}] processing album [{}]", Thread.currentThread().getId(), albumFile.getName());
+                File[] imageFileList = albumFile.listFiles(filex -> 
+                    !filex.isDirectory() && filex.toString().toLowerCase().endsWith("jpg")
+                );
+                LOGGER.info("Thread [{}] found {} images for album [{}]", Thread.currentThread().getId(), imageFileList.length, albumFile.getName());
                 Album album = createUUIDFileIfDoesntExistAndReturnAlbum(albumFile, new ArrayList<>());
                 fileHandler.createThumbnailDirectory(albumFile);            
                 Stream<File> imageFileStream = Arrays.stream(imageFileList);
-                Set<String> imageNamesInAlbum = album.getImages().values().parallelStream().map(i -> i.getName()).collect(Collectors.toSet());
+                Set<String> imageNamesInAlbum = album.getImages().values().parallelStream().map(Image::getName).collect(Collectors.toSet());
                 
                 albumService.save(album);
                 
                 List<File> unknownImagesInDirectory = imageFileStream
                         .filter(f -> !imageNamesInAlbum.contains(f.getName()))
                         .collect(Collectors.toList());
-                LOGGER.info("Thread [" + Thread.currentThread().getId() + "] found " + imageFileList.length + " images we did not know before for album [" + albumFile.getName() + "]");
+                LOGGER.info("Thread [{}] found {} images we did not know before for album [{}]", Thread.currentThread().getId(), imageFileList.length, albumFile.getName());
 
                 List<Image> images = new ArrayList<>();
                 for (File imageFile: unknownImagesInDirectory) {
                         Image image = processImageFile(album, imageFile, postponedImageDuplicateUpdates);
                         images.add(image);
                         if (images.size() > 1) {
-                            Image previousImage = (Image)images.get(images.size() - 2);
+                            Image previousImage = images.get(images.size() - 2);
                             previousImage.setNextId(image.getId());
                             Optional<Image> prevImageFromDbOptional = imageService.getImageById(previousImage.getId());
                             if (prevImageFromDbOptional.isPresent()) {
@@ -426,7 +422,7 @@ public class AdminController {
                         try {
                             imageService.save(image);
                         } catch (Exception ex) {
-                            LOGGER.warn("Failed to save new image: " + image.toString());
+                            LOGGER.warn("Failed to save new image: {}", image);
                             postponedImageDuplicateUpdates.put(image.getId(), image.getDuplicateOfImageId());
                             image.setDuplicateOfImageId(null);
                             imageService.save(image);
@@ -440,7 +436,7 @@ public class AdminController {
         {
             try {
                 Thread.sleep(500);
-                LOGGER.info("Active tasks: " + executor.getCompletedTaskCount() + "/" + albumsToProcess.size());
+                LOGGER.info("Active tasks: {}/{}", executor.getCompletedTaskCount(), albumsToProcess.size());
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -458,9 +454,9 @@ public class AdminController {
             for(int j = 0; j < albumDirectories.length; ++j) {
                 File directory = albumDirectories[j];
                 List<Image> images = new ArrayList<>();
-                File[] imageFileList = directory.listFiles((filex) -> {
-                    return !filex.isDirectory() && filex.toString().toLowerCase().endsWith("jpg");
-                });
+                File[] imageFileList = directory.listFiles(filex -> 
+                    !filex.isDirectory() && filex.toString().toLowerCase().endsWith("jpg")
+                );
                 Album album = this.createUUIDFileIfDoesntExistAndReturnAlbum(directory, images);
                 this.fileHandler.createThumbnailDirectory(directory);
                 
@@ -471,7 +467,7 @@ public class AdminController {
                     for(int i = 0; i < imageFileList.length; ++i) {
                         File file = imageFileList[i];
                         
-                        Image image = new Image(file, album.getAlbumid().toString(), this.fileHandler);
+                        Image image = new Image(file, album.getAlbumid(), this.fileHandler);
                         
                         /* at this point we should know if this image already exist in our database
                          * since we generate image id from the file CRC */
@@ -484,7 +480,7 @@ public class AdminController {
                         images.add(image);
                         this.fileHandler.createThumbnail(file);
                         if (images.size() > 1) {
-                            Image previousImage = (Image)images.get(images.size() - 2);
+                            Image previousImage = images.get(images.size() - 2);
                             previousImage.setNextId(image.getId());
                             Optional<Image> prevImageFromDbOptional = imageService.getImageById(previousImage.getId());
                             if (prevImageFromDbOptional.isPresent()) {
@@ -497,7 +493,7 @@ public class AdminController {
                         try {
                             imageService.save(image);
                         } catch (Exception ex) {
-                            LOGGER.warn("Failed to save image: " + image.toString());
+                            LOGGER.warn("Failed to save image: {}", image);
                             postponedImageDuplicateUpdates.put(image.getId(), image.getDuplicateOfImageId());
                             image.setDuplicateOfImageId(null);
                             imageService.save(image);
@@ -506,8 +502,8 @@ public class AdminController {
                 }
 
                 if (images.size() > 1) {
-                    ((Image)images.get(0)).setPreviousId(((Image)images.get(images.size() - 1)).getId());
-                    ((Image)images.get(images.size() - 1)).setNextId(((Image)images.get(0)).getId());
+                    (images.get(0)).setPreviousId((images.get(images.size() - 1)).getId());
+                    (images.get(images.size() - 1)).setNextId((images.get(0)).getId());
                 }
 
                 album.setImages(images);
@@ -523,12 +519,12 @@ public class AdminController {
             }
         }
 
-        return new ModelAndView("redirect:/gallery");
+        return new ModelAndView(Constants.REDIRECT_GALLERY);
     }
     
     private Image processImageFile(Album album, File imageFile, Map<String, String> postponedImageDuplicateUpdates) {
         long start = System.currentTimeMillis();
-        Image image = new Image(imageFile, album.getAlbumid().toString(), this.fileHandler);
+        Image image = new Image(imageFile, album.getAlbumid(), this.fileHandler);
         long imageCreated = System.currentTimeMillis() - start;
         /* at this point we should know if this image already exist in our database
          * since we generate image id from the file CRC */
@@ -549,7 +545,7 @@ public class AdminController {
         Album album = new Album(directory, images);
         if (uuidFile.exists()) {
             try {
-                album.setId((String)Files.readAllLines(uuidFile.toPath()).get(0));
+                album.setId(Files.readAllLines(uuidFile.toPath()).get(0));
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -563,8 +559,6 @@ public class AdminController {
 
     private File[] getAlbumDirectories() {
         File galleryHomeDirectory = new File(GalleryApplication.getGalleryHomeDirectory() == null ? homeDirectory : GalleryApplication.getGalleryHomeDirectory());
-        return galleryHomeDirectory.listFiles((filex) -> {
-            return filex.isDirectory();
-        });
+        return galleryHomeDirectory.listFiles(File::isDirectory);
     }
 }

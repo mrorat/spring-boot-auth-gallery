@@ -19,9 +19,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     UserRepository userRepository;
 
-    public CustomUserDetailsService() {
-    }
-
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
             User user = this.userRepository.findByUsername(username);
@@ -29,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 LOGGER.debug("user not found with the provided username");
                 throw new UsernameNotFoundException("User not found");
             } else {
-                LOGGER.debug(" user from username " + user.toString());
+                LOGGER.debug(" user from username {}", user.toString());
                 return user;
             }
         } catch (Exception var3) {

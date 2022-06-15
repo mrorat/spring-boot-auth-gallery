@@ -22,7 +22,12 @@ public interface AlbumRepository extends CrudRepository<Album, String> {
     @Query(
             value = "SELECT * FROM album a JOIN album_permissions ap ON ap.albumid=a.albumid WHERE ap.userid=?1 AND ap.created_date<NOW() AND (ap.deleted_date IS NULL OR ap.deleted_date>NOW())",
             nativeQuery = true)
-	List<Album> getAlbumsForUser(String userid);
+	List<Album> getAlbumsForUser(String userid);    
+    
+    @Query(
+            value = "SELECT * FROM album a JOIN album_permissions ap ON ap.albumid=a.albumid WHERE a.is_custom=true AND ap.userid=?1 AND ap.created_date<NOW() AND (ap.deleted_date IS NULL OR ap.deleted_date>NOW())",
+            nativeQuery = true)
+	List<Album> getCustomAlbumsForUser(String userid);
 
 	Optional<Album> findByAlbumid(String albumId);
 }

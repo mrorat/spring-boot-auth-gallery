@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import com.quasar.Constants;
 import com.quasar.model.Album;
 
-import io.micrometer.core.annotation.Timed;
 import mediautil.image.jpeg.AbstractImageInfo;
 import mediautil.image.jpeg.Entry;
 import mediautil.image.jpeg.Exif;
@@ -48,7 +47,7 @@ public class FileHandler {
     }
 
 
-    public InputStreamWithSize getStreamWithSize(String imagePath) throws FileNotFoundException, IOException {
+    public InputStreamWithSize getStreamWithSize(String imagePath) throws IOException {
         File f = new File(imagePath);
         return new InputStreamWithSize(new FileInputStream(f), Files.size(f.toPath()));
     }
@@ -93,12 +92,12 @@ public class FileHandler {
             File thumbnailFile = new File(thumbnailFilePath);
             if (!thumbnailFile.exists() || thumbnailFile.length() == 0) {
                 long thumbnailSize = resizeImage(ImageIO.read(file), thumbnailFilePath);
-                System.out.printf("Resized file from %d to %d - file: %s%n", thumbnailSize, file.length(), thumbnailFile.getAbsolutePath());
+                LOGGER.debug("Resized file from {} to {} - file: {}%n", thumbnailSize, file.length(), thumbnailFile.getAbsolutePath());
 
                 rotateThumbnailIfNecessary(thumbnailFilePath, file);
 
             } else {
-                LOGGER.debug("Thumbnail file for: " + file.getPath() + " already exists");
+                LOGGER.debug("Thumbnail file for: {} already exists", file.getPath());
             }
 
             return null;
@@ -136,7 +135,7 @@ public class FileHandler {
             llj.read(LLJTran.READ_INFO, true);
             AbstractImageInfo<?> imageInfo = llj.getImageInfo();
             if (!(imageInfo instanceof Exif)) {
-                System.out.println("Image has no EXIF data");
+            	LOGGER.info("Image has no EXIF data");
                 throw new Exception("Image has no EXIF data");
             }
 
@@ -177,17 +176,17 @@ public class FileHandler {
                     default:
                         rotation = "unknown " + operation;
                 }
-                System.out.println("File " + thumbnailFileName + " rotated " + rotation);
+                LOGGER.debug("File {} rotated {}", thumbnailFileName, rotation);
 
             } catch (Exception ex) {
-                System.out.println("Exception: " + ex.getMessage());
+            	LOGGER.warn("Exception: {}", ex.getMessage());
             } finally {
                 llj.freeMemory();
             }
 
         } catch (Exception e) {
 
-            System.out.println("Exception: " + e.getMessage());
+        	LOGGER.warn("Exception: {}", e.getMessage());
             // Unable to rotate image based on EXIF data
         }
     }
@@ -267,16 +266,14 @@ public class FileHandler {
                 throwable = ex;
                 throw ex;
             } finally {
-                if (fw != null) {
-                    if (throwable != null) {
-                        try {
-                            fw.close();
-                        } catch (Throwable ex) {
-                            throwable.addSuppressed(ex);
-                        }
-                    } else {
+                if (throwable != null) {
+                    try {
                         fw.close();
+                    } catch (Throwable ex) {
+                        throwable.addSuppressed(ex);
                     }
+                } else {
+                    fw.close();
                 }
             }
         } catch (IOException ex) {

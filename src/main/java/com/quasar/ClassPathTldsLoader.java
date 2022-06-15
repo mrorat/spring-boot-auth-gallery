@@ -18,6 +18,9 @@ public class ClassPathTldsLoader {
 
     final private List<String> classPathTlds;
 
+    @Autowired
+    private FreeMarkerConfigurer freeMarkerConfigurer;
+
     public ClassPathTldsLoader(String... classPathTlds) {
         super();
         if(classPathTlds.length == 0){
@@ -26,9 +29,6 @@ public class ClassPathTldsLoader {
             this.classPathTlds = Arrays.asList(classPathTlds);
         }
     }
-
-    @Autowired
-    private FreeMarkerConfigurer freeMarkerConfigurer;
 
     @PostConstruct
     public void loadClassPathTlds() {

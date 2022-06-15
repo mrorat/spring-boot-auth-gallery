@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,10 +48,7 @@ public class ImageHandler {
     	this.imageService = imageService;
     }
 
-    @RequestMapping(
-        path = {"/images/{iid}"},
-        method = {RequestMethod.GET}
-    )
+    @GetMapping("/images/{iid}")
     public void getImage(HttpServletResponse response, @PathVariable String albumId, @PathVariable String imageId) throws IOException {
         InputStreamWithSize myStreamWithSize = this.fileHandler.getStreamWithSize(getImageOrThrow(imageId).getPath());
         Throwable var5 = null;
@@ -81,10 +78,7 @@ public class ImageHandler {
 
     }
 
-    @RequestMapping(
-        path = {"/imagesbase64/thumbnails/{albumId}/{imageId}"},
-        method = {RequestMethod.GET}
-    )
+    @GetMapping("/imagesbase64/thumbnails/{albumId}/{imageId}")
     public void getThumbnailImageAsBase64(HttpServletResponse response, @PathVariable String albumId, @PathVariable String imageId) throws IOException {
     	String userName = SecurityContextHolder.getContext().getAuthentication().getName();
     	LOGGER.info(userName);
@@ -117,10 +111,7 @@ public class ImageHandler {
 		return missingFileBase64Content;
 	}
 
-	@RequestMapping(
-        path = {"/imagesbase64/{albumId}/{imageId}"},
-        method = {RequestMethod.GET}
-    )
+	@GetMapping("/imagesbase64/{albumId}/{imageId}")
     public void getImageAsBase64(HttpServletResponse response, @PathVariable String albumId, @PathVariable String imageId) throws IOException {
         String base64FileContent = this.fileHandler.getFileContentAsBase64(getImageOrThrow(imageId).getPath());
         this.modifyResponseHeaders(response, base64FileContent.length(), imageId, 7776000);
@@ -128,10 +119,7 @@ public class ImageHandler {
         response.flushBuffer();
     }
 
-    @RequestMapping(
-        path = {"/getImageDescription/{albumId}/{imageId}"},
-        method = {RequestMethod.GET}
-    )
+    @GetMapping("/getImageDescription/{albumId}/{imageId}")
     public void getImageDescription(HttpServletResponse response, @PathVariable String albumId, @PathVariable String imageId) throws IOException {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
@@ -145,29 +133,20 @@ public class ImageHandler {
         response.flushBuffer();
     }
 
-    @RequestMapping(
-        path = {"/selectImageAsAlbumBanner/{albumId}/{imageId}"},
-        method = {RequestMethod.GET}
-    )
+    @GetMapping("/selectImageAsAlbumBanner/{albumId}/{imageId}")
     public void selectImageAsAlbumBanner(@PathVariable String imageId, @PathVariable String albumId) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         LOGGER.info("User {} selected image {} as a banner for album {}%n", userName, imageId, albumId);
     }
 
-    @RequestMapping(
-        path = {"/renameAlbum/{albumId}/{newAlbumName}"},
-        method = {RequestMethod.GET}
-    )
+    @GetMapping("/renameAlbum/{albumId}/{newAlbumName}")
     public void renameAlbum(@PathVariable String albumId, @PathVariable String newAlbumName) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         this.albumService.renameAlbum(albumId, newAlbumName);
         LOGGER.info("User [%s] selected renamed album [ID: %s] to new name [%s]%n", userName, albumId, newAlbumName);
     }
 
-    @RequestMapping(
-            path = {"/images/{iid}/rotate"},
-            method = {RequestMethod.POST}
-        )
+    @PostMapping("/images/{iid}/rotate")
     public void rotateImage(@PathVariable String iid, @RequestParam("rotation") Rotation rotation) {
     	String userId = ((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getID();
     	String userName = SecurityContextHolder.getContext().getAuthentication().getName();

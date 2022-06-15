@@ -3,6 +3,8 @@ package com.quasar;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,9 +16,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
+	
 	public CustomAuthenticationProvider()
 	{
-		System.out.println("*** CustomAuthenticationProvider created");
+		LOGGER.info("*** CustomAuthenticationProvider created");
 	}
 
 	@Override

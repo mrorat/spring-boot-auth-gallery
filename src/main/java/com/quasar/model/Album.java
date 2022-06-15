@@ -41,12 +41,16 @@ public class Album implements Comparable<Album> {
     private String albumid;
     private String name;
     private String path;
+    @Column(name = "is_custom")
+    private boolean isCustom;
 
 	@Basic
 	@Temporal(TemporalType.TIMESTAMP)
-    private Date created_date;
+	@Column(name = "created_date")
+    private Date createdDate;
     @Transient
     private Map<String, Image> images = new HashMap<>();
+
 
     public Album() {}
     
@@ -54,17 +58,25 @@ public class Album implements Comparable<Album> {
         this.albumid = UUID.randomUUID().toString();
         this.name = convertDirectoryNameToAlbumName(directory.getName());
         this.path = directory.getPath();
-        Iterator<Image> var3 = images.iterator();
+        Iterator<Image> imagesIterator = images.iterator();
 
-        while(var3.hasNext()) {
-            Image i = (Image)var3.next();
+        while(imagesIterator.hasNext()) {
+            Image i = imagesIterator.next();
             this.images.put(i.getId(), i);
         }
 
         this.updateCreatedDate();
     }
     
-    public static String convertDirectoryNameToAlbumName(String directoryName) {
+    // Custom album creation - no directory name
+    public Album(String name) {
+    	this.albumid = UUID.randomUUID().toString();
+		this.name = name;
+		this.path = "\\*CUSTOM-ALBUM*\\";
+		this.isCustom = true;
+	}
+
+	public static String convertDirectoryNameToAlbumName(String directoryName) {
         return directoryName.replace("_", "-").replace("[", "(").replace("]", ")");
     }
 
@@ -81,11 +93,11 @@ public class Album implements Comparable<Album> {
 //    }
 
     public void setImages(List<Image> images) {
-        LOGGER.info("Setting images for Album [name: %s], [id: %s], [image qty: %d]%n", this.getName(), this.getAlbumid(), images.size());
-        Iterator<Image> var2 = images.iterator();
+        LOGGER.info("Setting images for Album [name: {}], [id: {}], [image qty: {}]%n", this.getName(), this.getAlbumid(), images.size());
+        Iterator<Image> imagesIterator = images.iterator();
 
-        while(var2.hasNext()) {
-            Image i = (Image)var2.next();
+        while(imagesIterator.hasNext()) {
+            Image i = imagesIterator.next();
             this.images.put(i.getId(), i);
         }
 
@@ -93,17 +105,17 @@ public class Album implements Comparable<Album> {
     }
 
     private void updateCreatedDate() {
-        if (this.created_date == null) {
+        if (this.createdDate == null) {
             try {
             	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                this.created_date = formatter.parse(this.name.substring(0, 10));
+                this.createdDate = formatter.parse(this.name.substring(0, 10));
             } catch (StringIndexOutOfBoundsException | IllegalArgumentException | ParseException var3) {
                 Optional<String> firstKey = this.images.keySet().stream().findFirst();
                 if (firstKey.isPresent()) {
-                    this.created_date = ((Image)this.images.get(firstKey.get())).getDateTaken();
-                    this.name = this.created_date.toString() + " " + this.name;
+                    this.createdDate = (this.images.get(firstKey.get())).getDateTaken();
+                    this.name = this.createdDate.toString() + " " + this.name;
                 } else {
-                	this.created_date = new Date();
+                	this.createdDate = new Date();
                 }
             }
         }
@@ -115,7 +127,7 @@ public class Album implements Comparable<Album> {
 
     public void setId(String id) {
         this.albumid = id;
-        LOGGER.info("Setting id %s for album %s%n", id, this.name);
+        LOGGER.info("Setting id {} for album {}%n", id, this.name);
     }
 
     public String getName() {
@@ -126,8 +138,8 @@ public class Album implements Comparable<Album> {
         return this.path;
     }
 
-    public synchronized Date getCreated_date() {
-        return this.created_date;
+    public synchronized Date getCreatedDate() {
+        return this.createdDate;
     }
 
     public int compareTo(Album o) {
@@ -141,5 +153,9 @@ public class Album implements Comparable<Album> {
     public void rename(File newNameAlbum) {
     	this.name = newNameAlbum.getName();
         this.path = newNameAlbum.getPath();
+    }
+    
+    public boolean isCustom() {
+    	return isCustom;
     }
 }
