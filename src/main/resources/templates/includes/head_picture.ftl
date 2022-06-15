@@ -8,8 +8,8 @@
 	<link rel="stylesheet" href="../../css/slider-switch.css">
 	<link rel="stylesheet" href="../../css/screen.css">
 
-    <script src="../../../js/jquery-3.6.0.min.js"></script>
-    <script language="JavaScript" type="text/javascript" src="../../../js/jquery-ui.min.js"></script>
+    <script src="../../../js/jquery.min.js"></script>
+    <script src="../../../js/jquery-ui.min.js"></script>
 	<script>
 		var app = angular.module('myApp', []);
 		app.controller('myCtrl', function($scope, $http)
@@ -32,15 +32,21 @@
             if (this.readyState == 4 && this.status == 200) {
                 var imageDescription = JSON.parse(this.responseText);
                
-                if (imageDescription.value != null && imageDescription.value.nextId != null 
-                	&& imageDescription.value.nextId != imageDescription.value.imageId) {
-                    document.getElementById("next").href = "/picture/${albumId}/" + imageDescription.value.nextId;
+                if (imageDescription != null && imageDescription.nextId != null 
+                	&& imageDescription.nextId != imageDescription.imageId) {
+                    document.getElementById("next").href = "/picture/${albumId}/" + imageDescription.nextId;
                     enableNext = true;
+                } else {
+                	document.getElementById("next").style.pointerEvents = "none";
+                	document.getElementById("next").style.color = "#dfdfdf";
                 }
-                if (imageDescription.value.previousId != null 
-                	&& imageDescription.value.previousId != imageDescription.value.imageId)  {
-                    document.getElementById("prev").href = "/picture/${albumId}/" + imageDescription.value.previousId;
+                if (imageDescription.previousId != null 
+                	&& imageDescription.previousId != imageDescription.imageId)  {
+                    document.getElementById("prev").href = "/picture/${albumId}/" + imageDescription.previousId;
                     enablePrev = true;
+                } else {
+                	document.getElementById("prev").style.pointerEvents = "none";
+                	document.getElementById("prev").style.color = "#dfdfdf";
                 }
             }
             else {

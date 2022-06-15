@@ -87,30 +87,6 @@ public class FileHandler {
         return base64image;
     }
 
-    public String getFileContentAsBase64Thumbnail(String albumId, String imageId, String imagePath) throws IOException {
-    	long start = System.currentTimeMillis();
-
-        File f = new File(imagePath);
-        if (f.exists()) {
-	        InputStream finput = new FileInputStream(f);
-	        Throwable var6 = null;
-		    byte[] imageBytes = new byte[(int)Files.size(f.toPath())];
-		    finput.read(imageBytes, 0, imageBytes.length);
-	        String base64 = getBase64FromInputStream(imageBytes);
-			LOGGER.info("Execution time [getFileContentAsBase64Thumbnail]: " + new Long(System.currentTimeMillis()-start).toString());
-			return base64;
-        } else {
-        	String errorMsg = String.format("File not found filePath: %s, ablumID: %s, imageID: %s", imagePath, albumId, imageId);
-        	LOGGER.warn(errorMsg);
-        	throw new IOException(errorMsg);
-        }
-    }
-
-
-        LOGGER.info("Execution time [getFileContentAsBase64Thumbnail]: " + new Long(System.currentTimeMillis()-start).toString());
-        return thumbnailAsBase64;
-    }
-
     public void createThumbnail(File file) {
         Callable<Integer> task = () -> {
             String thumbnailFilePath = this.getPathForThumbnailImage(file);
@@ -307,5 +283,11 @@ public class FileHandler {
             ex.printStackTrace();
         }
     }
+
+
+	public String getFileContentAsBase64ThumbnailFromClasspath(String string) {
+		
+		return "";
+	}
 
 }

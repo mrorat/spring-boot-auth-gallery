@@ -92,15 +92,11 @@
             <groupId>mediachest</groupId>
             <artifactId>mediachest</artifactId>
             <version>2.20</version>
-            <scope>system</scope>
-            <systemPath>/home/michal/code-private/spring-boot-auth-gallery/lib/MediaChest.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>mediautil</groupId>
             <artifactId>mediautil</artifactId>
             <version>2.20</version>
-            <scope>system</scope>
-            <systemPath>/home/michal/code-private/spring-boot-auth-gallery/lib/mediautil.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>

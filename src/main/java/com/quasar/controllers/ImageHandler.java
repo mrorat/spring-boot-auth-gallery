@@ -1,5 +1,6 @@
 package com.quasar.controllers;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.quasar.Constants;
 import com.quasar.controllers.dto.Rotation;
 import com.quasar.files.FileHandler;
 import com.quasar.files.InputStreamWithSize;
@@ -89,12 +91,14 @@ public class ImageHandler {
     	try {
             LOGGER.info("Request to get thumbnail for image id: " + imageId);
             Image image = getImageOrThrow(imageId);
+            String imageThumbnailPath = image.getPath()
+            		.replace(image.getName(), Constants.THUMBNAILS_DIR + "/" + image.getName());
             String base64FileContent = null;
-            if (image.fileExists()) {
-		        base64FileContent = this.fileHandler.getFileContentAsBase64Thumbnail(albumId, imageId, image.getPath());
+            if (new File(imageThumbnailPath).exists()) {
+		        base64FileContent = this.fileHandler.getFileContentAsBase64(imageThumbnailPath);
             } else {
             	base64FileContent = getMissingFileBase64Content();
-
+            	// TODO if we have original file lets regenerate thumbnail
             }
             this.modifyResponseHeaders(response, base64FileContent.length(), imageId, 7776000);
 	        response.getOutputStream().write(base64FileContent.getBytes());
@@ -137,7 +141,7 @@ public class ImageHandler {
         	return;
         }
         response.setContentType("application/json");
-        response.getOutputStream().write(gson.toJson(image).getBytes());
+        response.getOutputStream().write(gson.toJson(image.get()).getBytes());
         response.flushBuffer();
     }
 

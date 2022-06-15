@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.quasar.service.RoleService;
 import com.quasar.service.UserService;
 
 @Component
@@ -19,6 +20,9 @@ public class InitialAdminCreationHandler {
 	 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	RoleService roleService;
 	
 	@PostConstruct
 	public void postConstruct() {
@@ -46,7 +50,7 @@ public class InitialAdminCreationHandler {
 			log.info("==========================================================================================================");
 			log.info("==========================================================================================================");
 			Collection<Role> roles = new ArrayList<>();
-			roles.add(new Role(ROLES.ROLE_ADMIN));
+			roles.add(roleService.getRoleByName(ROLES.ROLE_ADMIN.name()));
 			User adminUser = new User("admin", password, roles);
 			userService.save(adminUser);
 		} else {
