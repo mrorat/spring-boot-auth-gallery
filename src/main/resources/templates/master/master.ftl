@@ -16,6 +16,11 @@
 <#if page?starts_with("admin")>
     <#include "../admin/admin_menu.ftl">
 <#else>
+    <@sec.authorize access="hasRole('ADMIN')">
+        <#if page?starts_with("user/profile")>
+            <#include "../admin/admin_menu.ftl">
+        </#if>
+    </@sec.authorize>
    ${page}
 </#if>
 <#nested/>

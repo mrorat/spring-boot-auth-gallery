@@ -95,9 +95,11 @@ public class ImageHandler {
             	// TODO if we have original file lets regenerate thumbnail
             }
             this.modifyResponseHeaders(response, base64FileContent.length(), imageId, 7776000);
+            LOGGER.debug("Sending " +  base64FileContent.length() + " bytes in response");
 	        response.getOutputStream().write(base64FileContent.getBytes());
 	        response.flushBuffer();
     	} catch (IOException ex) {
+    	    LOGGER.warn("Failed to get thumbnail for image id: " + imageId + ", Exception: " + ex.getMessage());
     		// we are unable to get the file from disk
     		imageService.markImageAsNonExistent(imageId);
     		response.setStatus(404);

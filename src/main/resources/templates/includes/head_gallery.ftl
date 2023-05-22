@@ -2,8 +2,8 @@
 
   	<title>${albumName}</title>
  	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-    <script type="text/javascript" src="../../../js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="../../../static/js/jquery-ui.min.js"></script> 
+    <script type="text/javascript" src="../../js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../js/jquery-ui.min.js"></script> 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">

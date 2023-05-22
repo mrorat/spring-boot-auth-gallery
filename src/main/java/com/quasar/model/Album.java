@@ -1,6 +1,8 @@
 package com.quasar.model;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,8 +43,8 @@ public class Album implements Comparable<Album> {
     private String albumid;
     private String name;
     private String path;
-    @Column(name = "is_custom")
-    private boolean isCustom;
+//    @Column(name = "is_custom")
+//    private boolean isCustom;
 
 	@Basic
 	@Temporal(TemporalType.TIMESTAMP)
@@ -73,7 +75,7 @@ public class Album implements Comparable<Album> {
     	this.albumid = UUID.randomUUID().toString();
 		this.name = name;
 		this.path = "\\*CUSTOM-ALBUM*\\";
-		this.isCustom = true;
+//		this.isCustom = true;
 	}
 
 	public static String convertDirectoryNameToAlbumName(String directoryName) {
@@ -133,6 +135,16 @@ public class Album implements Comparable<Album> {
     public String getName() {
         return this.name;
     }
+    
+    public String getUrlEncodedName() {
+        try {
+            return URLEncoder.encode(this.name, java.nio.charset.StandardCharsets.UTF_16.name());
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return this.name;
+        }
+    }
 
     public String getPath() {
         return this.path;
@@ -154,8 +166,8 @@ public class Album implements Comparable<Album> {
     	this.name = newNameAlbum.getName();
         this.path = newNameAlbum.getPath();
     }
-    
-    public boolean isCustom() {
-    	return isCustom;
-    }
+//    
+//    public boolean isCustom() {
+//    	return isCustom;
+//    }
 }

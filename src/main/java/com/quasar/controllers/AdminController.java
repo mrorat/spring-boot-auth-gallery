@@ -331,14 +331,18 @@ public class AdminController {
 	
     @GetMapping("/album/refresh")
     public ModelAndView getRefreshAlbums(@RequestParam Optional<String> error) {
-        Set<Album> allAlbums = albumManager.getAllAlbums();
-        Set<String> albumNames = allAlbums.stream().map(Album::getName).collect(Collectors.toSet());
+        Set<Album> albumsInDatabase = albumManager.getAllAlbums();
+        Set<String> albumNamesInDatabase = albumsInDatabase.stream().map(Album::getName).collect(Collectors.toSet());
         File[] albumFiles = getAlbumDirectories();
-        Stream<File> albumStream = Arrays.stream(albumFiles);
-        List<File> unknownAlbumDirectories = albumStream
-                .parallel()
-                .filter(f -> !albumNames.contains(Album.convertDirectoryNameToAlbumName(f.getName()))).sorted()
-                .collect(Collectors.toList());
+        Set<File> albumDirectoriesOnDisk = Arrays.stream(albumFiles).collect(Collectors.toSet());
+        Set<File> albumsMissingInDatabase = albumDirectoriesOnDisk
+                                                .stream()
+                                                .filter(a -> !albumNamesInDatabase.contains(a.getName())).collect(Collectors.toSet());
+//        List<File> unknownAlbumDirectories = albumDirectoriesOnDisk
+//                .stream()
+//                .parallel()
+//                .filter(f -> !albumNames.contains(Album.convertDirectoryNameToAlbumName(f.getName()))).sorted()
+//                .collect(Collectors.toList());
         
         List<File> albumsWithoutThumbnailsDirectory = Arrays.asList(albumFiles).stream()
                 .filter(f -> !(new File(f.getAbsolutePath() + File.separator + Constants.THUMBNAILS_DIR).exists())).collect(Collectors.toList());
@@ -351,11 +355,11 @@ public class AdminController {
                 .collect(Collectors.toList());
         
         List<File> albumsToProcess = new ArrayList<>();
-        albumsToProcess.addAll(unknownAlbumDirectories);
+//        albumsToProcess.addAll(unknownAlbumDirectories);
         albumsToProcess.addAll(albumsWithoutThumbnailsDirectory);
         albumsToProcess.addAll(albumsWithoutThumbnailFiles);
         
-        processAlbums(albumsToProcess);
+        processAlbumsOnDisk(albumsToProcess);
 
         return new ModelAndView(Constants.REDIRECT_GALLERY);
     }
@@ -366,7 +370,7 @@ public class AdminController {
         Optional<Album> optionalAlbum = albumManager.getAlbumByIdForCurrentUser(albumId);
         
         if (optionalAlbum.isPresent()) {
-            processAlbums(Collections.singletonList(new File(optionalAlbum.get().getPath())));
+            processAlbumsOnDisk(Collections.singletonList(new File(optionalAlbum.get().getPath())));
         } else {
         	User currentUser = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         	LOGGER.warn("Either album does not exist or user does not have access to it. Album ID: {}, User ID: {}", albumId, currentUser.getID());
@@ -376,7 +380,7 @@ public class AdminController {
     }
     
     @Async
-    private void processAlbums(List<File> albumsToProcess) {
+    private void processAlbumsOnDisk(List<File> albumsToProcess) {
         Map<String, String> postponedImageDuplicateUpdates = new HashMap<>();
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         

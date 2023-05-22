@@ -20,10 +20,13 @@ import com.quasar.Constants;
 import com.quasar.files.FileHandler;
 import com.quasar.util.CrcUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Entity
 @Table(
     name = "image"
 )
+@Slf4j
 public class Image implements Comparable<Image> {
     
     @Id
